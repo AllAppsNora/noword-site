@@ -847,7 +847,8 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}) });
 
   var deferred = null;
-  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; show() });
+  var entered = false;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; if (entered) show() });
   window.addEventListener('appinstalled', function () { hide(); ls.set('nwInstallDone', '1') });
 
   function el(t, css, txt) { var n = document.createElement(t); if (css) n.style.cssText = css; if (txt) n.textContent = txt; return n }
@@ -866,17 +867,16 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   function snoozed(key, days) { var t = +ls.get(key) || 0; return Date.now() - t < days * 864e5 }
 
   function show() {
-    if (standalone || ls.get('nwInstallDone') || snoozed('nwInstallSnooze', 3)) return;
+    if (!entered || card || standalone || ls.get('nwInstallDone') || snoozed('nwInstallSnooze', 3)) return;
     if (ios) {
       var copy = btn('Adresi kopyala', true, function () { var u = location.href.split('#')[0]; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast('Adres kopyalandı. Safari\'de yapıştırın.') }).catch(function () { toast('Adresi elle kopyalayın.') }) });
       if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'nin adres çubuğuna yapıştırın.'], [copy], 'nwInstallSnooze');
       var sh = btn('Paylaş menüsünü aç', true, function () { if (navigator.share) navigator.share({ title: 'NoWord', url: location.href.split('#')[0] }).catch(function () {}); else toast('Alttaki Paylaş simgesine dokunun.') });
-      return open('Ana ekrana ekleyin', ['1. "Paylaş menüsünü aç"a dokunun.', '2. Açılan menüde aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. Bildirimler ancak böyle çalışır.'], [sh], 'nwInstallSnooze');
+      return open('Ana ekrana ekleyin', ['1. "Paylaş menüsünü aç"a dokunun.', '2. Açılan menüde aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. İlk açılışta bir kez tekrar giriş gerekir. Bildirimler ancak böyle çalışır.'], [sh], 'nwInstallSnooze');
     }
     if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', '1') }).catch(function () {}) })], 'nwInstallSnooze');
     if (android) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
   }
-  window.addEventListener('load', function () { setTimeout(show, 2500) });
 
   /* ---- Web bildirimi ---- */
   var supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && (!ios || standalone);
@@ -896,9 +896,22 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   function pushInit() {
     if (!supported) return;
     if (Notification.permission === 'granted') return void subscribe().catch(function () {});
-    if (Notification.permission === 'default' && !snoozed('nwPushSnooze', 3)) setTimeout(function () { if (!card) askCard() }, 3000);
+    if (Notification.permission === 'default' && !snoozed('nwPushSnooze', 3)) setTimeout(function () { if (!card) askCard() }, 1500);
   }
-  document.addEventListener('DOMContentLoaded', function () { var nw = document.getElementById('nw'); if (nw) nw.addEventListener('noword-enter', pushInit) });
+  document.addEventListener('DOMContentLoaded', function () { var nw = document.getElementById('nw'); if (nw) nw.addEventListener('noword-enter', function () { entered = true; pushInit(); setTimeout(show, ios ? 2500 : 7000) }) });
+
+  /* Davet bağlantısı (?e=adres): karşılama ekranını atlayıp giriş ekranını adresle açar. Koşulları kabul etme ve kod girme kullanıcıda kalır. */
+  (function () {
+    var m = new URLSearchParams(location.search).get('e'); if (!m) return;
+    m = m.trim().toLowerCase(); if (m.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) return;
+    try { history.replaceState(null, '', location.pathname) } catch (e) {}
+    var n = 0, clicked = false, t = setInterval(function () {
+      n++; var em = document.getElementById('email'), h = document.getElementById('haveInvite');
+      if (em) { clearInterval(t); if (!em.value) { em.value = m; var tip = el('p', 'color:#51615f;font-size:14px;margin:6px 0 0', 'Davet edilen adres yazıldı. Koşulları kabul edip Devam\'a basın, kod bu adrese gelecek.'); em.after(tip); var ag = document.getElementById('agree'); if (ag) try { ag.focus() } catch (e) {} } return }
+      if (h && !clicked) { clicked = true; h.click() }
+      if (n > 40) clearInterval(t);
+    }, 150);
+  })();
 })();
 </script></body>
 </html>
