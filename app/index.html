@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f4f7f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1716" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>NoWord</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="NoWord">
+<style>
+/* NoWord teması v2: sakin ama modern, okunaklı bir araç.
+   Derin çam yeşili özet kartı, geniş boşluklar, büyük yazı, zaman sütunlu görev kartları.
+   Süs yok: logo motifi (eşit iki halka) tek grafik öğe. Durum renkleri vurgudan ayrı. */
+:root{
+  --bg:#e3eae8;--app:#f4f7f6;--card:#ffffff;--panel:#e8eeec;
+  --ink:#0e1f1e;--ink2:#394e4c;--ink3:#4f635f;--line:#dae2df;
+  --accent:#0e5a55;--accent-ink:#ffffff;--accent-soft:#d3ebe6;
+  --live:#f2a03d;--hero:#0d3b38;--hero-ink:#effaf8;--hero-ink2:#a3ccc6;
+  --warn:#7a4f00;--warn-bg:#fbeecb;--crit:#8a3434;--crit-bg:#f7dfdd;--wait:#2c4262;--wait-bg:#e1e8f3;
+  --shadow:0 20px 50px rgba(14,31,30,.12);--lift:0 1px 2px rgba(14,31,30,.05),0 6px 18px rgba(14,31,30,.05);
+  --f-ui:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-display:'Sora','Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#091110;--app:#0e1716;--card:#162221;--panel:#1b2a29;--ink:#e8f2f0;--ink2:#b0c4c1;--ink3:#97aea9;--line:#2a3b39;--accent:#7fd0c5;--accent-ink:#06211f;--accent-soft:#1f3f3b;--hero:#15403c;--hero-ink:#effaf8;--hero-ink2:#a8d2cc;--warn:#e6c274;--warn-bg:#3a2f15;--crit:#eba5a5;--crit-bg:#3c2424;--wait:#b9c9e4;--wait-bg:#243248;--shadow:0 20px 50px rgba(0,0,0,.45);--lift:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#091110;--app:#0e1716;--card:#162221;--panel:#1b2a29;--ink:#e8f2f0;--ink2:#b0c4c1;--ink3:#97aea9;--line:#2a3b39;--accent:#7fd0c5;--accent-ink:#06211f;--accent-soft:#1f3f3b;--hero:#15403c;--hero-ink:#effaf8;--hero-ink2:#a8d2cc;--warn:#e6c274;--warn-bg:#3a2f15;--crit:#eba5a5;--crit-bg:#3c2424;--wait:#b9c9e4;--wait-bg:#243248;--shadow:0 20px 50px rgba(0,0,0,.45);--lift:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);color-scheme:dark}
+
+body{margin:0;padding:0;background:var(--app);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+:is(#no,#nw){max-width:480px;margin-inline:auto}
+:is(#no,#nw) *{box-sizing:border-box}
+:is(#no,#nw) [hidden]{display:none!important}
+:is(#no,#nw) .phone{background:var(--app);padding:20px 20px 28px;min-height:100vh;min-height:100dvh}
+:is(#no,#nw) .phone{padding-top:calc(20px + var(--safe-area-inset-top,env(safe-area-inset-top,0px)));padding-bottom:calc(28px + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));padding-left:calc(20px + var(--safe-area-inset-left,env(safe-area-inset-left,0px)));padding-right:calc(20px + var(--safe-area-inset-right,env(safe-area-inset-right,0px)))}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-wrap:break-word}
+:is(#no,#nw) button,:is(#no,#nw) select,:is(#no,#nw) summary,:is(#no,#nw) label.check,:is(#no,#nw) label.sw{touch-action:manipulation}
+@media (min-width:520px){
+  body{background:var(--bg);padding-block:28px}
+  :is(#no,#nw) .phone{min-height:0;border-radius:32px;border:1px solid var(--line);box-shadow:var(--shadow);padding:26px 24px 30px}
+}
+
+/* Başlıklar ve metin */
+:is(#no,#nw) header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+:is(#no,#nw) h2{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.5px;margin:0;display:flex;align-items:center;gap:10px}
+:is(#no,#nw) .mark{width:34px;height:24px;color:var(--accent);flex:none}
+:is(#no,#nw) h3{font-family:var(--f-display);font-weight:600;font-size:25px;letter-spacing:-.6px;line-height:1.2;margin:20px 0 10px;text-wrap:balance}
+:is(#no,#nw) header h3{margin:0;font-size:20px}
+:is(#no,#nw) p{margin:8px 0}
+:is(#no,#nw) .muted{color:var(--ink3);font-size:14px}
+:is(#no,#nw) .note{color:var(--ink3);font-size:14px;margin:12px 0}
+:is(#no,#nw) #step:empty{display:none}
+:is(#no,#nw) #step{font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--panel)}
+:is(#no,#nw) label{display:block;margin:18px 0 8px;font-size:14px;font-weight:600;color:var(--ink2)}
+
+/* Denetimler */
+:is(#no,#nw) button,:is(#no,#nw) select,:is(#no,#nw) input,:is(#no,#nw) textarea{font:inherit;color:inherit}
+:is(#no,#nw) button,:is(#no,#nw) select,:is(#no,#nw) input:not([type=checkbox]),:is(#no,#nw) textarea{min-height:52px;padding:12px 15px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+:is(#no,#nw) select,:is(#no,#nw) input:not([type=checkbox]),:is(#no,#nw) textarea{width:100%;margin:0}
+:is(#no,#nw) textarea{min-height:104px;resize:vertical;overflow-wrap:anywhere;line-height:1.5}
+:is(#no,#nw) button{cursor:pointer;font-weight:600}
+:is(#no,#nw) button:disabled{opacity:.45;cursor:not-allowed}
+:is(#no,#nw) :is(button,select,input,textarea):focus-visible{outline:3px solid var(--accent);outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}
+:is(#no,#nw) .full{width:100%;margin-top:12px}
+:is(#no,#nw) .main{width:100%;margin-top:20px;background:var(--accent);color:var(--accent-ink);border-color:transparent;min-height:54px;border-radius:16px;font-size:16px}
+:is(#no,#nw) .secondary,:is(#no,#nw) .outline{width:100%;margin-top:10px;background:transparent;min-height:52px}
+:is(#no,#nw) .row{display:flex;gap:10px;margin:14px 0}
+:is(#no,#nw) .row>*{flex:1;min-width:0}
+:is(#no,#nw) .row>.main{margin-top:0}
+:is(#no,#nw) .links{display:flex;gap:2px 20px;flex-wrap:wrap;margin:10px 0}
+:is(#no,#nw) .links button{width:auto;min-height:44px;padding:6px 0;border:0;background:transparent;color:var(--accent);font-size:15px;text-decoration:underline;text-underline-offset:3px}
+:is(#no,#nw) .check{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:500;margin:16px 0;color:var(--ink)}
+:is(#no,#nw) .check input,:is(#no,#nw) .weekdays input{width:22px;height:22px;min-height:22px;margin:0;accent-color:var(--accent)}
+:is(#no,#nw) .error{color:var(--crit);font-size:14px;font-weight:500;margin:8px 0;min-height:1.4em}
+:is(#no,#nw) #formError,:is(#no,#nw) #taskNoteError,:is(#no,#nw) #editError,:is(#no,#nw) #editNoteError,:is(#no,#nw) #cancelError{color:var(--crit);font-weight:500}
+:is(#no,#nw) #effect:empty{display:none}
+:is(#no,#nw) section>header>button:not(#childrenSettings){width:auto;min-height:44px;border:0;background:var(--panel);color:var(--ink);padding:8px 16px;border-radius:999px;font-size:15px}
+:is(#no,#nw) #childrenSettings{width:auto;min-height:44px;padding:8px 18px;border-radius:999px;font-size:15px}
+
+/* Giriş ve çocuk kartları */
+:is(#no,#nw) .cardrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;margin:10px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--lift);font-weight:600}
+:is(#no,#nw) #childList .cardrow{background:var(--accent-soft);border-color:transparent;box-shadow:none;justify-content:flex-start}
+:is(#no,#nw) #childList .cardrow::before{content:"✓";flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:700;display:grid;place-items:center}
+:is(#no,#nw) #childList .cardrow button{margin-left:auto}
+:is(#no,#nw) #addChild,:is(#no,#nw) #addNextChild{border-style:dashed;border-width:1.5px;border-color:var(--ink3)}
+:is(#no,#nw) #addChild::before,:is(#no,#nw) #addNextChild::before{content:"+ "}
+:is(#no,#nw) .cardrow button{width:auto;min-height:44px;padding:8px 14px;font-size:14px;flex:none;border-radius:12px}
+:is(#no,#nw) .childPreview{background:var(--card);border:1px solid var(--line);padding:16px;border-radius:18px;margin:10px 0;font-weight:600;box-shadow:var(--lift)}
+:is(#no,#nw) .heroArt{margin:4px 0 22px;padding:18px 14px;border-radius:26px;background:var(--hero);background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--accent) 40%,transparent),transparent 60%),var(--hero)}
+:is(#no,#nw) .heroArt{display:flex;align-items:center;justify-content:center;gap:16px}
+:is(#no,#nw) .heroArt svg{display:block;width:128px;height:auto;flex:none}
+:is(#no,#nw) .heroArt .wm{font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:-.6px;color:var(--hero-ink)}
+:is(#no,#nw) .heroArt .c{fill:none;stroke:var(--hero-ink);stroke-width:2.5}
+:is(#no,#nw) .heroArt .lens{fill:var(--live);fill-opacity:1}
+:is(#no,#nw) .brandRow+h3{font-size:27px;line-height:1.15;margin:0 0 18px;letter-spacing:-.7px}
+:is(#no,#nw) .lead{font-size:16px;line-height:1.5;color:var(--ink2);margin:0 0 14px}
+:is(#no,#nw) .ticks{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:8px}
+:is(#no,#nw) .ticks li{position:relative;padding-left:28px;font-weight:600;font-size:15px;line-height:1.35}
+:is(#no,#nw) .ticks li::before{content:"✔";position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:var(--accent-soft,var(--panel));color:var(--accent);font-size:11px;display:grid;place-items:center}
+:is(#no,#nw) .who{font-weight:700;margin:0 0 8px}
+:is(#no,#nw) .opts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+:is(#no,#nw) .opt{width:auto;min-height:44px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+:is(#no,#nw) .opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft,var(--panel));color:var(--accent)}
+
+/* Ana ekran: sıra CSS ile kuruldu (başlık, görünüm, özet, süzgeç, bekleyenler, liste) */
+:is(#no,#nw) #home{display:flex;flex-direction:column}
+:is(#no,#nw) #home>header{order:0}
+:is(#no,#nw) #home>#views{order:1}
+:is(#no,#nw) #home>.hero{order:2}
+:is(#no,#nw) #home>#filters{order:3}
+:is(#no,#nw) #home>.attention{order:4}
+:is(#no,#nw) #home>#calendar{order:5}
+:is(#no,#nw) #home>#tasks{order:6}
+:is(#no,#nw) #home>#add{order:7}
+:is(#no,#nw) #home>#historyBtn{order:8}
+:is(#no,#nw) #views{background:var(--panel);padding:5px;border-radius:18px;gap:4px;margin:0 0 14px}
+:is(#no,#nw) #views button{border:0;background:transparent;border-radius:14px;min-height:44px;color:var(--ink2);font-weight:600}
+:is(#no,#nw) #views button.active{background:var(--card);color:var(--ink);box-shadow:var(--lift)}
+:is(#no,#nw) .hero{border-radius:26px;padding:14px 14px 18px;margin:0 0 16px;color:var(--hero-ink);background:var(--hero);background:radial-gradient(120% 150% at 100% 0%,color-mix(in srgb,var(--accent) 42%,transparent),transparent 58%),var(--hero)}
+:is(#no,#nw) .daynav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0}
+:is(#no,#nw) .daynav b{font-family:var(--f-display);font-weight:600;font-size:21px;letter-spacing:-.5px;text-align:center;line-height:1.2;text-wrap:balance}
+:is(#no,#nw) .daynav button{flex:none;width:46px;height:46px;min-height:46px;padding:0;border:0;border-radius:15px;background:rgba(255,255,255,.14);color:var(--hero-ink);display:grid;place-items:center}
+:is(#no,#nw) .summary{margin:8px 0 0;text-align:center;font-size:14px;font-weight:500;color:var(--hero-ink2)}
+:is(#no,#nw) #filters{display:flex;gap:8px;margin:0 0 14px;padding:0;border:0}
+:is(#no,#nw) #filters button{flex:none;width:auto;min-height:40px;padding:6px 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink2);font-size:14px}
+:is(#no,#nw) #filters button.active{background:var(--ink);color:var(--app);border-color:var(--ink)}
+:is(#no,#nw) .attention{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 16px}
+:is(#no,#nw) .attention button{display:flex;align-items:center;gap:12px;text-align:left;width:100%;margin:0;padding:12px 14px;min-height:66px;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--lift)}
+:is(#no,#nw) .attention .qn{flex:none;min-width:36px;height:36px;padding:0 8px;display:grid;place-items:center;border-radius:12px;background:var(--wait-bg);color:var(--wait);font-family:var(--f-display);font-weight:700;font-size:16px}
+:is(#no,#nw) #unassignedBtn .qn{background:transparent;box-shadow:inset 0 0 0 2px var(--wait)}
+:is(#no,#nw) .attention .ql{font-size:14px;font-weight:600;line-height:1.25}
+:is(#no,#nw) .month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:0 0 16px;padding:10px;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--lift)}
+:is(#no,#nw) .month .dow{font-size:12.5px;font-weight:600;color:var(--ink3);text-align:center;padding:6px 0}
+:is(#no,#nw) .month button{min-height:44px;padding:0;position:relative;border-radius:13px;border-color:transparent;background:transparent;font-variant-numeric:tabular-nums;font-weight:600}
+:is(#no,#nw) .month button.has::after{content:"";position:absolute;left:50%;bottom:6px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--accent)}
+:is(#no,#nw) .month button.today{box-shadow:inset 0 0 0 2px var(--accent)}
+:is(#no,#nw) .month button.sel{background:var(--accent);color:var(--accent-ink)}
+:is(#no,#nw) .month button.sel::after{background:var(--accent-ink)}
+:is(#no,#nw) #add{position:sticky;bottom:calc(14px + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));z-index:2;margin-top:22px;border-radius:18px;box-shadow:0 0 0 14px var(--app);box-shadow:0 0 0 14px var(--app),0 18px 30px 10px color-mix(in srgb,var(--accent) 24%,transparent)}
+:is(#no,#nw) #historyBtn{margin-top:14px}
+
+/* Görev kartları: sol zaman sütunu, sağ içerik */
+:is(#no,#nw) #tasks{display:flex;flex-direction:column;gap:12px;margin:0;color:var(--ink3)}
+:is(#no,#nw) .task{display:grid;grid-template-columns:60px minmax(0,1fr);column-gap:14px;row-gap:3px;align-items:start;width:100%;text-align:left;padding:16px;margin:0;min-height:0;background:var(--card);border:1px solid var(--line);border-radius:22px;color:var(--ink);box-shadow:var(--lift);font-weight:400}
+:is(#no,#nw) button.task:hover{border-color:var(--ink3)}
+:is(#no,#nw) .task .tm{grid-row:1/span 3;font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:-.3px;line-height:1.3;font-variant-numeric:tabular-nums;color:var(--ink)}
+:is(#no,#nw) .task b{grid-column:2;font-size:17px;font-weight:700;line-height:1.3}
+:is(#no,#nw) .task .muted{grid-column:2;margin:0}
+:is(#no,#nw) .task .chips{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+:is(#no,#nw) .task.completed{opacity:.6;box-shadow:none}
+:is(#no,#nw) .status{display:inline-flex;align-items:center;gap:6px;margin:0;padding:6px 11px;border-radius:999px;font-size:13px;font-weight:600;line-height:1.15;background:var(--panel);color:var(--ink2)}
+:is(#no,#nw) .status.o-me{background:var(--accent-soft);color:var(--accent)}
+:is(#no,#nw) .status.o-other{background:var(--panel)}
+:is(#no,#nw) .status.o-none{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ink3);border-radius:10px}
+:is(#no,#nw) .status.s-wait{background:var(--wait-bg);color:var(--wait)}
+:is(#no,#nw) .status.s-done{background:transparent;color:var(--ink3);padding-inline:2px}
+:is(#no,#nw) .status.s-done::before{content:"";width:10px;height:5px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg) translateY(-1px)}
+:is(#no,#nw) .lateAlert{display:inline-flex;align-items:center;gap:4px;margin-left:8px;color:var(--warn);font-weight:700;vertical-align:middle}
+:is(#no,#nw) .ic{flex:none}
+:is(#no,#nw) .empty{margin:4px 0;padding:26px 16px;text-align:center;border:1.5px dashed var(--line);border-radius:22px;color:var(--ink3)}
+:is(#no,#nw) #cancelledList .task{display:block}
+:is(#no,#nw) .detailWarning{display:flex;align-items:center;gap:8px;padding:13px 15px;margin:12px 0;border-radius:14px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+
+/* Ayrıntı, form, karşılaştırma */
+:is(#no,#nw) #detailTitle{font-size:30px;margin:8px 0 4px}
+:is(#no,#nw) .dl{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:4px 18px;margin:14px 0;box-shadow:var(--lift)}
+:is(#no,#nw) .detail-line{display:flex;justify-content:space-between;gap:16px;padding:15px 0}
+:is(#no,#nw) .detail-line+.detail-line{border-top:1px solid var(--line)}
+:is(#no,#nw) .detail-line span:first-child{color:var(--ink3)}
+:is(#no,#nw) .detail-line span:last-child{text-align:right;font-weight:600;overflow-wrap:anywhere}
+:is(#no,#nw) .comparison{background:var(--panel);padding:16px;border-radius:18px;margin:16px 0}
+:is(#no,#nw) .comparison p{margin:6px 0;overflow-wrap:anywhere}
+:is(#no,#nw) .comparison strong{font-weight:700}
+:is(#no,#nw) .reqNoteView{margin:10px 0 0;padding:11px 13px;border-radius:14px;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);font-size:15px;color:var(--ink);overflow-wrap:anywhere}
+:is(#no,#nw) .reqNote{margin-top:6px}
+:is(#no,#nw) .weekdays{display:flex;flex-wrap:wrap;gap:8px}
+:is(#no,#nw) .weekdays label{display:flex;align-items:center;gap:8px;margin:0;padding:11px 14px;background:var(--panel);border-radius:12px;font-weight:600;color:var(--ink)}
+:is(#no,#nw) .noteHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 10px}
+:is(#no,#nw) .noteMeta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+:is(#no,#nw) .noteMeta .note{margin:8px 0}
+:is(#no,#nw) .noteHeader label{margin:0}
+:is(#no,#nw) .noteHeader button{width:auto;min-height:44px;padding:6px 14px;font-size:13px;margin:0}
+:is(#no,#nw) #taskVoice{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:0}
+:is(#no,#nw) #detailNote,:is(#no,#nw) #changeFields p,:is(#no,#nw) #replyResults p{overflow-wrap:anywhere}
+:is(#no,#nw) #replyResults p{margin:6px 0}
+:is(#no,#nw) .queueItem{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;font-size:15px;line-height:1.35;min-height:0;padding:14px 16px;font-weight:600;border-radius:20px;background:var(--card);border:1px solid var(--line);box-shadow:var(--lift)}
+:is(#no,#nw) .queueItem .qh{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+:is(#no,#nw) .queueItem .qtitle{font-family:var(--f-display);font-size:17px;font-weight:700;letter-spacing:-.2px}
+:is(#no,#nw) .queueItem .qcount{flex:none;padding:3px 10px;border-radius:999px;background:var(--panel);color:var(--ink2);font-size:13px;font-weight:700}
+:is(#no,#nw) .queueItem .qmeta{font-size:14px;font-weight:500;color:var(--ink2)}
+:is(#no,#nw) .queueItem .status{margin-top:4px;text-align:left}
+
+/* Bildirim */
+#toast{position:fixed;left:16px;right:16px;bottom:calc(16px + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));max-width:420px;margin-inline:auto;padding:14px 18px;border-radius:16px;background:var(--ink);color:var(--app);font-size:15px;font-weight:500;text-align:center;z-index:10;box-shadow:var(--shadow)}
+:is(#no,#nw) .row:has(label){margin:0}
+:is(#no,#nw) .comparison p:first-child{font-family:var(--f-display);font-size:17px;font-weight:700;margin:0 0 10px;color:var(--ink)}
+:is(#no,#nw) .comparison p+p{color:var(--ink2);font-weight:500}
+#no:has(.brandRow) header{display:none}
+:is(#no,#nw) #screen>.brandRow:first-child{margin-top:14px}
+
+/* Bildirimler, ayarlar, yasal metinler */
+:is(#no,#nw) #home>header .hbtns{display:flex;gap:8px}
+:is(#no,#nw) .iconbtn{position:relative;width:46px;height:46px;min-height:46px;padding:0;display:grid;place-items:center;border-radius:15px;background:var(--card);border:1px solid var(--line);color:var(--ink)}
+:is(#no,#nw) .badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--crit);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;line-height:1;border:2px solid var(--app)}
+:is(#no,#nw) .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 8px}
+:is(#no,#nw) .nhead h4{margin:0;font-size:14px;color:var(--ink2);text-transform:none;letter-spacing:0}
+:is(#no,#nw) .linkbtn{min-height:36px;padding:4px 8px;border:0;background:transparent;color:var(--accent);font-size:14px;font-weight:600}
+:is(#no,#nw) .notif{display:flex;align-items:flex-start;gap:12px;width:100%;margin:0 0 10px;padding:14px 16px;text-align:left;border-radius:18px;background:var(--card);border:1px solid var(--line);font-weight:500}
+:is(#no,#nw) .notif .nd{flex:none;width:10px;height:10px;margin-top:6px;border-radius:50%;background:transparent}
+:is(#no,#nw) .notif .nb{display:flex;flex-direction:column;gap:3px;min-width:0}
+:is(#no,#nw) .notif .nb b{font-weight:700;font-size:15px}
+:is(#no,#nw) .notif .nb span{font-size:14px;color:var(--ink2);line-height:1.4}
+:is(#no,#nw) .notif .nb small{font-size:12.5px;color:var(--ink3)}
+:is(#no,#nw) .notif.unread{border-color:var(--accent);box-shadow:var(--lift)}
+:is(#no,#nw) .notif.unread .nd{background:var(--live)}
+:is(#no,#nw) .notif:not(.unread){opacity:.72;background:var(--panel)}
+:is(#no,#nw) .sgroup{margin:0 0 22px}
+:is(#no,#nw) .sgroup h4{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--ink3);text-transform:uppercase}
+:is(#no,#nw) .srow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 2px;border-bottom:1px solid var(--line);font-size:15px}
+:is(#no,#nw) .srow>b{font-weight:600;text-align:right;overflow-wrap:anywhere}
+:is(#no,#nw) .srow small{display:block;margin-top:2px;font-size:12.5px;color:var(--ink3);font-weight:500}
+:is(#no,#nw) .srow select{width:auto;min-height:44px;max-width:60%}
+:is(#no,#nw) .srow label{margin:0}
+:is(#no,#nw) .sw{cursor:pointer}
+:is(#no,#nw) .sw input{appearance:none;-webkit-appearance:none;flex:none;position:relative;width:50px;height:30px;min-height:30px;margin:0;padding:0;border-radius:15px;border:0;background:var(--line);cursor:pointer;transition:background .15s}
+:is(#no,#nw) .sw input::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+:is(#no,#nw) .sw input:checked{background:var(--accent)}
+:is(#no,#nw) .sw input:checked::after{transform:translateX(20px)}
+:is(#no,#nw) .sw input:disabled{opacity:.55;cursor:not-allowed}
+:is(#no,#nw) .sgroup .outline:first-of-type{margin-top:0}
+:is(#no,#nw) .confirm{margin-top:12px;padding:14px 16px;border-radius:18px;background:var(--panel)}
+:is(#no,#nw) .confirm p{margin:0 0 8px}
+:is(#no,#nw) .confirm .row{margin:10px 0 0}
+:is(#no,#nw) .danger{color:var(--crit)}
+:is(#no,#nw) .main.danger{background:var(--crit);border-color:var(--crit);color:#fff}
+:is(#no,#nw) .tools{padding:14px 16px;border-radius:18px;border:1px dashed var(--ink3)}
+:is(#no,#nw) .lsec{margin:0 0 16px}
+:is(#no,#nw) .lsec h4{margin:0 0 4px;font-size:15px}
+:is(#no,#nw) .lsec p{margin:0;font-size:15px;line-height:1.55;color:var(--ink2)}
+:is(#no,#nw) .check .inl{display:inline;min-height:0;width:auto;padding:0;margin:0;border:0;background:transparent;color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+:is(#no,#nw) #settingsPage #childrenSettings{width:100%;min-height:52px;padding:12px 15px}
+:is(#no,#nw) .srow>span:first-child{white-space:nowrap}
+:is(#no,#nw) .sw>span:first-child{white-space:normal;flex:1;min-width:0}
+:is(#no,#nw) .srow>b{flex:1}
+:is(#no,#nw) #settingsPage>h3{margin:0 0 18px}
+
+:is(#no,#nw) .modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(7,20,19,.55)}
+:is(#no,#nw) .mbox{width:100%;max-width:360px;padding:22px 20px 18px;border-radius:24px;background:var(--card);box-shadow:var(--shadow);border:1px solid var(--line)}
+:is(#no,#nw) .mbox .mt{margin:0 0 6px;font-family:var(--f-display);font-size:18px;font-weight:700;line-height:1.3}
+:is(#no,#nw) .mbox .note{margin:0 0 14px}
+:is(#no,#nw) .mbox .row{margin:0}
+
+/* Çocuklar: uygulamanın tek parlak rengi */
+:is(#no,#nw) .kid::before{content:"";display:inline-block;width:9px;height:9px;margin-right:7px;border-radius:50%;background:var(--live);vertical-align:1px}
+:is(#no,#nw) .queueItem .qmeta::before{content:"";display:inline-block;width:9px;height:9px;margin-right:7px;border-radius:50%;background:var(--live);vertical-align:1px}
+:is(#no,#nw) #settingsPage #childrenSettings::before{content:"";display:inline-block;width:10px;height:10px;margin-right:9px;border-radius:50%;background:var(--live)}
+:is(#no,#nw) #childList .cardrow::before{background:var(--live);color:#3a2600}
+:is(#no,#nw) .notif.unread .nd{background:var(--accent)}
+:is(#no,#nw) #settingsPage .outline,:is(#no,#nw) #settingsPage #childrenSettings{background:var(--card);border-color:var(--line);border-color:color-mix(in srgb,var(--ink3) 40%,var(--line))}
+:is(#no,#nw) #settingsPage .outline:hover{border-color:var(--ink3)}
+
+:is(#no,#nw) .queueItem .qwho{display:block;margin-top:2px;font-size:14px;color:var(--ink2)}
+
+:is(#no,#nw) .summary:empty{display:none}
+
+:is(#no,#nw) .brandRow{display:flex;align-items:center;gap:10px;margin:0 0 22px;font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.5px}
+
+:is(#no,#nw) #pairState{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0;padding:0}
+:is(#no,#nw) #home header .mark path{animation:lensIn .7s ease both}
+:is(#no,#nw) .mark circle{transition:transform .6s cubic-bezier(.3,.7,.2,1),opacity .5s ease}
+:is(#no,#nw) .mark.solo .a{transform:translateX(5px)}
+:is(#no,#nw) .mark.solo .b{opacity:0;transform:translateX(9px)}
+@keyframes lensIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){:is(#no,#nw) #home header .mark path{animation:none}:is(#no,#nw) .mark circle{transition:none}}
+
+:is(#no,#nw) #childFilters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:0;border:0}
+:is(#no,#nw) #childFilters button{flex:none;width:auto;min-height:40px;padding:6px 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink2);font-size:14px}
+:is(#no,#nw) #childFilters button.active{background:var(--ink);color:var(--app);border-color:var(--ink)}
+:is(#no,#nw) #home>#childFilters{order:3}
+
+/* Açılış ekranı dikey ortalama */
+#no:has(#start) .phone{display:flex;flex-direction:column}
+#no:has(#start) #screen{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:6vh}
+#no:has(#start) #screen>.brandRow:first-child{margin-top:0}
+
+/* İkincil düğmeler: açıkça düğme gibi görünsün */
+:is(#no,#nw) .secondary,:is(#no,#nw) .outline{background:var(--card);color:var(--ink);border:1.5px solid var(--ink3);border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--ink3));box-shadow:0 1px 0 rgba(0,0,0,.05),0 2px 6px rgba(0,0,0,.06);font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center}
+:is(#no,#nw) .secondary:active,:is(#no,#nw) .outline:active{transform:translateY(1px);box-shadow:none}
+:is(#no,#nw) .secondary:hover,:is(#no,#nw) .outline:hover{border-color:var(--accent)}
+:is(#no,#nw) .outline.danger,:is(#no,#nw) .secondary.danger{color:var(--crit);border-color:var(--crit)}
+:is(#no,#nw) #settingsPage .outline,:is(#no,#nw) #settingsPage #childrenSettings{border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--ink3))}
+:is(#no,#nw) .noteHeader .outline{width:auto;min-height:40px;padding:6px 12px;font-size:14px;box-shadow:none}
+:is(#no,#nw) #homeInvite{margin:-6px 0 8px;padding-left:0}
+
+</style>
+</head>
+<body>
+<div id="no"><div class="phone"><header><h2><svg class="mark" viewBox="0 0 32 22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 4.76A8 8 0 0 1 16 17.24A8 8 0 0 1 16 4.76Z" fill="#f2a03d" stroke="none"/><circle cx="11" cy="11" r="8"/><circle cx="21" cy="11" r="8"/></svg><span>NoWord</span></h2><span class="muted" id="step"></span></header><div id="screen" aria-live="polite"></div></div>
+<script>(function(){window.__nwBoot=0;setTimeout(function(){if(window.__nwBoot===3||document.getElementById('nwFatal'))return;var d=document.createElement('div');d.id='nwFatal';d.setAttribute('role','alertdialog');d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:Canvas;color:CanvasText;display:flex;flex-direction:column;justify-content:center;padding:28px;font:16px/1.5 system-ui,sans-serif';d.innerHTML='<h2 style="margin:0 0 12px;font-size:22px">NoWord başlatılamadı</h2><p style="margin:0 0 24px">Google Play’den “Android System WebView” ve “Google Chrome” uygulamalarını güncelleyip tekrar deneyin.</p><button type="button" onclick="location.reload()" style="min-height:52px;padding:12px 18px;font:inherit;font-weight:600;border-radius:14px;border:1px solid currentColor;background:transparent;color:inherit">Yeniden dene</button>';document.body.appendChild(d)},6000)})();</script>
+<script>/* NoWord çekirdeği: sürüm, uyumluluk, hata yakalama, tarih biçimleme, depolama, servis katmanı.
+   Uygulama kodu buradaki NW nesnesi dışında tarayıcıya özgü API'ye (Intl, depolama) dayanmaz. */
+(function(){
+'use strict';
+var NW=window.NW={version:'1.0.0',build:'20261013',schema:1,env:'release',errors:[],
+  config:{minClient:'1.0.0',supportEmail:'all.apps.nora@gmail.com'}};
+
+/* ---- Eski WebView için küçük eklentiler ---- */
+function def(o,n,f){if(!(n in o))Object.defineProperty(o,n,{value:f,configurable:true,writable:true})}
+def(Element.prototype,'replaceChildren',function(){while(this.firstChild)this.removeChild(this.firstChild);for(var i=0;i<arguments.length;i++)this.append(arguments[i])});
+def(Array.prototype,'at',function(n){n=Math.trunc(n)||0;if(n<0)n+=this.length;return this[n]});
+def(Array.prototype,'flat',function(d){d=d===undefined?1:d;return this.reduce(function(a,v){return a.concat(Array.isArray(v)&&d>0?v.flat(d-1):v)},[])});
+def(Array.prototype,'flatMap',function(f,t){return this.map(f,t).flat(1)});
+def(Object,'fromEntries',function(it){var o={};for(var e of it)o[e[0]]=e[1];return o});
+def(Object,'hasOwn',function(o,k){return Object.prototype.hasOwnProperty.call(o,k)});
+def(String.prototype,'replaceAll',function(a,b){return typeof a==='string'?this.split(a).join(b):this.replace(a,b)});
+
+/* ---- Tam ekran uyarı (başlatılamadı / güncelleme gerekli) ---- */
+NW.fatal=function(title,text,label,fn){
+  var old=document.getElementById('nwFatal');if(old)old.remove();
+  var d=document.createElement('div');d.id='nwFatal';d.setAttribute('role','alertdialog');d.setAttribute('aria-modal','true');
+  d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:Canvas;color:CanvasText;display:flex;flex-direction:column;justify-content:center;padding:28px;font:16px/1.5 system-ui,sans-serif;text-align:left';
+  var h=document.createElement('h2');h.textContent=title;h.style.cssText='margin:0 0 12px;font-size:22px';
+  var p=document.createElement('p');p.textContent=text;p.style.cssText='margin:0 0 24px';
+  var b=document.createElement('button');b.type='button';b.textContent=label||'Yeniden dene';b.style.cssText='min-height:52px;padding:12px 18px;font:inherit;font-weight:600;border-radius:14px;border:1px solid currentColor;background:transparent;color:inherit';
+  b.onclick=fn||function(){location.reload()};
+  d.append(h,p,b);document.body.append(d);try{b.focus()}catch(e){}
+};
+
+/* ---- Desteklenen tarayıcı bileşeni (Android System WebView ≥ 105) ---- */
+NW.supported=(function(){try{return !!(window.CSS&&CSS.supports&&CSS.supports('selector(:is(a))')&&CSS.supports('selector(:has(a))')&&window.Promise&&window.Map&&window.Set&&window.CustomEvent&&Element.prototype.closest&&window.MutationObserver)}catch(e){return false}})();
+if(!NW.supported){NW.fatal('Güncelleme gerekli','Bu cihazdaki Android System WebView sürümü NoWord için çok eski. Google Play’den “Android System WebView” ve “Google Chrome” uygulamalarını güncelleyip tekrar deneyin.')}
+
+/* ---- Sürüm karşılaştırma ve zorunlu güncelleme kapısı ---- */
+NW.cmp=function(a,b){a=String(a).split('.').map(Number);b=String(b).split('.').map(Number);for(var i=0;i<3;i++){var x=a[i]||0,y=b[i]||0;if(x!==y)return x<y?-1:1}return 0};
+NW.gate=function(minClient){if(minClient&&NW.cmp(NW.version,minClient)<0){if(NW.onForce)NW.onForce();NW.fatal('Güncelleme gerekli','NoWord’ün bu sürümü artık desteklenmiyor. Devam etmek için Google Play’den uygulamayı güncelleyin.');return false}return true};
+
+/* ---- Bildirim ve hata yakalama ---- */
+NW.notify=function(msg){var t=document.createElement('div');t.className='nwNotice';t.setAttribute('role','alert');t.textContent=msg;t.style.cssText='position:fixed;left:16px;right:16px;bottom:24px;max-width:420px;margin:0 auto;padding:14px 18px;border-radius:16px;background:#1d2a29;color:#fff;font:15px/1.4 system-ui,sans-serif;z-index:2147482000;box-shadow:0 8px 24px rgba(0,0,0,.35)';document.body.append(t);setTimeout(function(){t.remove()},4500)};
+var lastNotice=0;
+NW.report=function(kind,err){
+  var msg=err&&err.message?err.message:String(err);if(/ResizeObserver/.test(msg))return;
+  NW.errors.push({t:new Date().toISOString(),kind:kind,msg:msg,stack:err&&err.stack?String(err.stack).slice(0,600):''});if(NW.errors.length>30)NW.errors.shift();
+  var n=Date.now();if(n-lastNotice>5000){lastNotice=n;NW.notify('Beklenmeyen bir sorun oluştu. İşlemi tekrar deneyin; sürerse uygulamayı yeniden açın.')}
+};
+window.addEventListener('error',function(e){NW.report('error',e.error||e.message)});
+window.addEventListener('unhandledrejection',function(e){NW.report('promise',e.reason)});
+
+/* ---- Tarih biçimleme (Intl/ICU'ya bağlı değil; tr-TR çıktısıyla aynı) ---- */
+var AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
+    GUN=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+function p2(n){return n<10?'0'+n:''+n}
+NW.fmt={
+  date:function(d,o){if(!(d instanceof Date)||isNaN(d))return '';if(!o)return p2(d.getDate())+'.'+p2(d.getMonth()+1)+'.'+d.getFullYear();
+    var s=[];if(o.day)s.push(d.getDate());if(o.month==='long')s.push(AY[d.getMonth()]);if(o.year)s.push(d.getFullYear());if(o.weekday)s.push(GUN[d.getDay()]);return s.join(' ')},
+  iso:function(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())},
+  upperFirst:function(s){if(!s)return s;var c=s.charAt(0);c=c==='i'?'İ':c==='ı'?'I':c.toUpperCase();return c+s.slice(1)}
+};
+
+/* Uygulamadaki toLocaleDateString('tr-TR'|'sv-SE') çağrıları aynı çıktıyı her cihazda üretsin (ICU/dil paketi eksik cihazlarda İngilizce ay adı çıkmasın). */
+var nativeTLD=Date.prototype.toLocaleDateString;
+Date.prototype.toLocaleDateString=function(loc,o){
+  if(loc==='sv-SE'&&o===undefined)return NW.fmt.iso(this);
+  if(loc==='tr-TR'){var ok=true;if(o){for(var k in o){if(!({day:'numeric',month:'long',year:'numeric',weekday:'long'}[k]===o[k])){ok=false;break}}}if(ok)return NW.fmt.date(this,o)}
+  return nativeTLD.apply(this,arguments)
+};
+
+/* ---- Yerel depolama: sürümlü kayıt + göç (migration) ---- */
+var LS=null;try{var w=window.localStorage;w.setItem('__nw','1');w.removeItem('__nw');LS=w}catch(e){LS=null}
+var mem={};
+NW.migrations={}; /* {1:function(d,name){...return d2}}: şema 1→2 geçişi. Yeni sürümde şema artınca buraya eklenir. */
+NW.store={
+  read:function(name,def){try{var raw=LS?LS.getItem('noword.'+name):mem[name];if(raw==null)return def;var rec=JSON.parse(raw);if(!rec||typeof rec!=='object')return def;
+      var v=rec.v|0,d=rec.d;if(v>NW.schema)return def;
+      while(v<NW.schema){var m=NW.migrations[v];if(m)d=m(d,name);v++}
+      return d===undefined?def:d}catch(e){return def}},
+  write:function(name,data){try{var raw=JSON.stringify({v:NW.schema,d:data});if(LS)LS.setItem('noword.'+name,raw);else mem[name]=raw;return true}catch(e){return false}},
+  remove:function(name){try{if(LS)LS.removeItem('noword.'+name);delete mem[name]}catch(e){}},
+  clear:function(){try{if(LS){Object.keys(LS).filter(function(k){return k.indexOf('noword.')===0}).forEach(function(k){LS.removeItem(k)})}mem={}}catch(e){}}
+};
+(function(){var meta=NW.store.read('meta',{});if(meta.appVersion!==NW.version){NW.upgradedFrom=meta.appVersion||null;NW.store.write('meta',{appVersion:NW.version,firstRun:meta.firstRun||Date.now(),previous:meta.appVersion||null})}})();
+
+/* ---- Servis katmanı ----
+   Uygulama sunucuya yalnızca NW.svc üzerinden konuşur. Yayında bu nesne Supabase'e bağlanır;
+   önizleme sağlayıcısı sunucu yokken arayüzün çalışmasını sağlar. Her çağrı Promise döndürür. */
+function timeout(p,ms){return new Promise(function(res,rej){var t=setTimeout(function(){rej(new Error('timeout'))},ms||15000);p.then(function(v){clearTimeout(t);res(v)},function(e){clearTimeout(t);rej(e)})})}
+NW.svc={
+  provider:'preview',
+  timeout:timeout,
+  getConfig:function(){return Promise.resolve({minClient:NW.config.minClient})},
+  sendCode:function(email){return Promise.resolve({ok:true})},
+  verifyCode:function(email,code){return Promise.resolve({ok:/^\d{6}$/.test(String(code))})},
+  getInvite:function(email){return Promise.resolve(null)},
+  sendInvite:function(email){return Promise.resolve({ok:true})},
+  acceptInvite:function(email){return Promise.resolve({ok:true})},
+  neutralize:function(text){return Promise.resolve({ok:true,text:Array.from(String(text)).slice(0,140).join('')})},
+  requestExport:function(){return Promise.resolve({ok:true})},
+  deleteAccount:function(){return Promise.resolve({ok:true})}
+};
+NW.svc.getConfig().then(function(c){if(c)NW.gate(c.minClient)},function(){});
+})();
+</script>
+<script>/* NoWord canlı servis sağlayıcısı: Supabase (REST). Yalnızca herkese açık (publishable) anahtar içerir. */
+(function(){
+'use strict';
+var NW=window.NW,URL_='https://gjztdlihsfmozxcgdwke.supabase.co',KEY='sb_publishable_tDQAKMpHaorQAplXqg5Nqg_zwOImZeT';
+var svc=NW.svc;svc.provider='live';NW.noteDelay=1800;
+function hdr(tok){var h={'apikey':KEY,'Content-Type':'application/json'};if(tok)h.Authorization='Bearer '+tok;return h}
+function call(path,body,tok,method){
+  return NW.svc.timeout(fetch(URL_+path,{method:method||'POST',headers:hdr(tok),body:body===undefined?undefined:JSON.stringify(body)}),15000).then(function(r){
+    return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}return {status:r.status,json:j}})});
+}
+function errCode(res){var j=res.json||{};var m=String(j.message||j.msg||j.error_description||j.error||'');
+  if(res.status===429||/rate|security purposes|too many/i.test(m))return 'rate_limited';
+  if(/expired|invalid|token/i.test(m))return 'invalid_code';
+  var mm=m.match(/^[a-z_]+$/);return mm?m:(j.hint&&/^[a-z_]+$/.test(j.hint)?j.hint:'server')}
+function sess(){return NW.store.read('session',null)}
+function saveSess(s){if(!s){planId=null;return NW.store.remove('session')}NW.store.write('session',{a:s.access_token,r:s.refresh_token,exp:Date.now()+(s.expires_in||3600)*1000-60000,uid:s.user&&s.user.id,email:s.user&&s.user.email})}
+var refreshing=null;
+function token(){var s=sess();if(!s)return Promise.reject(new Error('no_session'));if(Date.now()<s.exp)return Promise.resolve(s.a);
+  if(!refreshing)refreshing=call('/auth/v1/token?grant_type=refresh_token',{refresh_token:s.r}).then(function(res){refreshing=null;
+    if(res.status===200&&res.json&&res.json.access_token){saveSess(res.json);return res.json.access_token}
+    if(res.status>=400&&res.status<500){saveSess(null);throw new Error('no_session')}throw new Error('network')},function(e){refreshing=null;throw e});
+  return refreshing}
+function rpc(name,args){return token().then(function(t){return call('/rest/v1/rpc/'+name,args||{},t)}).then(function(res){
+  if(res.status>=200&&res.status<300)return {ok:true,data:res.json};return {ok:false,error:errCode(res)}})}
+svc.get=function(path){return token().then(function(t){return call(path,undefined,t,'GET')}).then(function(res){if(res.status>=200&&res.status<300)return res.json||[];throw new Error(errCode(res))})};
+svc.session=function(){var s=sess();return s?{email:s.email,uid:s.uid}:null};
+svc.rpc=rpc;
+svc.getConfig=function(){return call('/rest/v1/rpc/get_config',{},KEY).then(function(res){var c=res.json||{};
+  var mc=c.min_client;if(mc&&typeof mc==='object')mc=mc.version||mc.v;return {minClient:typeof mc==='string'?mc:NW.config.minClient,latest:c.latest_client}})};
+var REVIEW='play.reviewer@example.com';
+svc.sendCode=function(email){if(String(email).toLowerCase()===REVIEW)return Promise.resolve({ok:true});return call('/auth/v1/otp',{email:email,create_user:true}).then(function(res){return res.status===200?{ok:true}:{ok:false,error:errCode(res)}})};
+svc.verifyCode=function(email,code){var c=String(code).replace(/\s/g,'');if(!/^\d{6,8}$/.test(c))return Promise.resolve({ok:false,error:'invalid_code'});
+  if(String(email).toLowerCase()===REVIEW)return call('/auth/v1/token?grant_type=password',{email:REVIEW,password:c}).then(function(res){if(res.status===200&&res.json&&res.json.access_token){saveSess(res.json);return {ok:true}}return {ok:false,error:'invalid_code'}});
+  return call('/auth/v1/verify',{type:'email',email:email,token:c}).then(function(res){if(res.status===200&&res.json&&res.json.access_token){saveSess(res.json);return {ok:true}}return {ok:false,error:errCode(res)}})};
+svc.getState=function(){return rpc('get_state').then(function(r){if(!r.ok)throw new Error(r.error);return r.data})};
+var planId=null;
+svc.ensurePlan=function(children){if(planId)return Promise.resolve({ok:true});return svc.getState().then(function(s){if(s&&s.plan_id){planId=s.plan_id;return {ok:true}}
+  return rpc('create_plan',{p_children:children}).then(function(r){if(r.ok)planId=r.data;return r})})};
+svc.signOut=function(){var s=sess();saveSess(null);if(s)call('/auth/v1/logout',{},s.a).catch(function(){});return Promise.resolve({ok:true})};
+svc.getInvite=function(){return rpc('get_my_invite').then(function(r){return r.ok&&r.data?{children:r.data.children||[]}:null})};
+svc.sendInvite=function(email){return rpc('invite_parent',{p_email:email})};
+svc.acceptInvite=function(){return rpc('accept_invite')};
+var nCache={};
+svc.neutralize=function(text){var k=String(text).trim();if(nCache[k])return Promise.resolve({ok:true,text:nCache[k]});return svc._neutralize(k).then(function(r){if(r.ok)nCache[k]=r.text;return r})};
+svc._neutralize=function(text){return token().then(function(t){return call('/functions/v1/neutralize-note',{text:text},t)}).then(function(res){
+  return res.status===200&&res.json&&typeof res.json.text==='string'&&!res.json.error?{ok:true,text:res.json.text}:{ok:false}})};
+svc.requestExport=function(){return rpc('request_export')};
+svc.deleteAccount=function(){return rpc('delete_account').then(function(r){if(r.ok)saveSess(null);return r})};
+svc.getConfig().then(function(c){if(c)NW.gate(c.minClient)},function(){});
+})();
+</script>
+<script>
+window.NW_LEGAL={"priv": {"title": "Aydınlatma Metni", "note": "Son güncelleme: Ekim 2026", "sections": [["Veri sorumlusu", "NoWord uygulamasının geliştiricisi All Apps Nora. İletişim: all.apps.nora@gmail.com."], ["İşlenen kişisel veriler", "E-posta adresiniz; görev, takvim ve talep kayıtları; çocuklar için girdiğiniz ad veya takma ad (gerçek ad girmeniz zorunlu değildir); yapay zekâ ile düzenlenmiş notlar; bildirim ve cihaz bilgileri; kabul ettiğiniz metinlerin sürümü ve zamanı."], ["Ham notlar", "Yazdığınız ham not, nötr bir dile dönüştürülmesi için Anthropic'in yapay zekâ hizmetine (API) gönderilir. Ham not NoWord sunucularında kaydedilmez ve günlüklere yazılmaz; yalnızca düzenlenmiş hâli saklanır ve diğer ebeveyne iletilir. Anthropic, API üzerinden gönderilen verileri varsayılan olarak model eğitimi için kullanmadığını belirtmektedir. Düzenleme hizmetine ulaşılamazsa not iletilmez; notu yeniden deneyebilir veya silebilirsiniz."], ["İşleme amaçları", "Hesabınızın oluşturulması, ortak takvim ve görev yönetimi, talep ve yanıt akışı, bildirimlerin gönderilmesi, hizmet güvenliği ve yasal yükümlülüklerin yerine getirilmesi."], ["Hukuki sebep", "Sözleşmenin kurulması ve ifası, meşru menfaat ve kanundan doğan yükümlülükler. Gerekli durumlarda açık rızanız ayrıca istenir."], ["Aktarım", "Ortak plandaki bilgiler diğer ebeveynle paylaşılır. Barındırma, veri tabanı, bildirim ve yapay zekâ hizmet sağlayıcılarına hizmetin gerektirdiği ölçüde aktarım yapılabilir. Bu hizmet sağlayıcılarının sunucuları yurt dışında (Avrupa Birliği dahil) bulunabilir; aktarım, hizmetin sunulması için zorunlu olduğu ölçüde ve veri güvenliği önlemleriyle yapılır."], ["Saklama", "Verileriniz hesabınız süresince saklanır. Hesabınızı sildiğinizde kişisel verileriniz silinir; ortak kayıtlar diğer ebeveynin ekranında anonim olarak kalır."], ["Haklarınız", "6698 sayılı Kanun'un 11. maddesi kapsamında verilerinize erişme, düzeltme, silme ve itiraz etme haklarınız vardır. Başvuru: all.apps.nora@gmail.com."]]}, "terms": {"title": "Kullanım Koşulları", "note": "Son güncelleme: Ekim 2026", "sections": [["Hizmet", "NoWord, ebeveynlerin çocukla ilgili görevleri ortak bir takvimde planlaması ve talepleri kontrollü biçimde iletmesi için bir araçtır. Hukuki danışmanlık, arabuluculuk veya resmî belge değildir; velayet ve kişisel ilişki düzenlemelerinin yerine geçmez."], ["Hesap", "Doğru bir e-posta adresi kullanmanız ve hesabınızın güvenliğini korumanız gerekir."], ["Ortak plan", "İki ebeveyn eşit yetkilidir. Sorumlu değişikliği, düzenleme, not ve iptal talepleri karşı tarafın yanıtına tabidir. Yanıt gelene kadar mevcut plan ve sorumlu korunur."], ["Notlar ve yapay zekâ", "Notlarınız yapay zekâ ile yansız bir dile dönüştürülür ve göndermeden önce size önizlemesi gösterilir. Yapay zekâ hata yapabilir; sonucu kontrol etmek sizin sorumluluğunuzdadır. Notlara kişisel olarak çok hassas bilgi (sağlık raporu, kimlik numarası gibi) yazmamanızı öneririz."], ["Kabul edilemez kullanım", "Tehdit, taciz, hakaret veya hukuka aykırı içerik için kullanılamaz."], ["Bağlantı ve hesap", "Bağlantı kesildiğinde ayrılan kişinin gelecekteki görevleri \"Sorumlu bekliyor\" durumuna geçer, bekleyen talepler kapanır, geçmiş kayıtlar korunur. Hesabınızı istediğiniz zaman Ayarlar'dan silebilirsiniz."], ["Değişiklikler ve sorumluluk", "Koşullar güncellenebilir; önemli değişikliklerde yeniden onayınız istenir. Hizmet, kesintisiz veya hatasız çalışacağı garantisi verilmeden olduğu gibi sunulur; yasaların izin verdiği ölçüde, hizmetin kullanımından doğan dolaylı zararlardan sorumluluk kabul edilmez."]]}, "policy": {"title": "Gizlilik Politikası", "note": "Son güncelleme: Ekim 2026", "sections": [["Az veri", "Yalnızca hizmet için gereken veriler toplanır. Çocuklar için gerçek ad yerine takma ad kullanabilirsiniz; takma ad değişiklikleri yalnızca sizin ekranınızı etkiler."], ["Notlar", "Ham notlar kaydedilmez ve sunucu günlüklerine yazılmaz; düzenleme için yalnızca anlık olarak Anthropic'e iletilir. Yalnızca yapay zekâ ile düzenlenmiş not saklanır."], ["Bildirimler", "Telefon bildirimlerinde not içeriği gösterilmez. Kilit ekranında yalnızca nötr bir özet görünür."], ["Üçüncü taraf hizmetler", "Uygulama; veri tabanı ve kimlik doğrulama için Supabase (Frankfurt, AB), e-posta gönderimi için Google (Gmail) ve not düzenleme için Anthropic yapay zekâ hizmetini kullanır. Bu sağlayıcılar verileri yalnızca hizmeti sunmak amacıyla işler. Reklam veya izleme amaçlı hiçbir üçüncü taraf kullanılmaz."], ["Verileriniz üzerinde kontrol", "Ayarlar'dan verilerinizin bir kopyasını isteyebilir, bağlantıyı kesebilir ve hesabınızı silebilirsiniz."], ["İletişim", "Sorularınız ve talepleriniz için: all.apps.nora@gmail.com"]]}};
+(()=>{const root=document.getElementById('no'),screen=root.querySelector('#screen'),step=root.querySelector('#step');let email='',children=[],invited=false,inviteMode=false,agreed=false;const mailOk=v=>/^[^\s@]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/.test(v);let setupReturn=null,setupChildDraft='';const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function bind(id,fn){root.querySelector('#'+id).onclick=fn}function error(t){root.querySelector('#error').textContent=t}screen.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='checkbox'){e.preventDefault();const b=screen.querySelector('.main');if(b&&!b.disabled)b.click()}});const NETFAIL='Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
+function legalScreen(kind){email=root.querySelector('#email').value.trim();agreed=root.querySelector('#agree').checked;const d=window.NW_LEGAL[kind];step.textContent='Yasal metin';screen.innerHTML='<button type="button" id="legalBack">‹ Geri</button><h3></h3><p class="note"></p><div id="legalBody"></div>';screen.querySelector('h3').textContent=d.title;screen.querySelector('.note').textContent=d.note;const body=screen.querySelector('#legalBody');d.sections.forEach(([h,p])=>{const e=document.createElement('div');e.className='lsec';const t=document.createElement('h4');t.textContent=h;const x=document.createElement('p');x.textContent=p;e.append(t,x);body.append(e)});bind('legalBack',login)}
+root.addEventListener('noword-unpair',()=>{inviteMode=false;invited=false});root.addEventListener('noword-pair',()=>{inviteMode=true;invited=false});
+root.addEventListener('noword-invite',()=>{HMARK.classList.add('solo');invite()});
+
+const HMARK=root.querySelector('header .mark');HMARK.innerHTML='<circle class="a" cx="11" cy="11" r="8"/><circle class="b" cx="21" cy="11" r="8"/>';HMARK.classList.add('solo');
+function pairAnim(next){HMARK.classList.remove('solo');const b=root.querySelector('#send');if(b)b.disabled=true;setTimeout(next,750)}
+
+function liveRoute(){screen.innerHTML='<p class="muted" role="status">Yükleniyor…</p>';NW.svc.timeout(NW.svc.getState()).then(s=>{if(s&&s.plan_id){children=(s.children||[]).map(c=>c.name);invited=s.pair_state==='invited';inviteMode=s.pair_state==='paired';home()}else if(s&&s.has_invite){inviteMode=true;joinInvite()}else{inviteMode=false;children=[];childSetup()}}).catch(e=>{if(e&&e.message==='no_session'){NW.svc.signOut();welcome();return}screen.innerHTML='<h3>Bağlantı kurulamadı</h3><p class="muted">'+NETFAIL+'</p><button type="button" class="main" id="liveRetry">Tekrar dene</button><button type="button" class="secondary" id="liveOut">Çıkış yap</button>';bind('liveRetry',liveRoute);bind('liveOut',()=>{NW.svc.signOut();welcome()})})}function welcome(){step.textContent='';screen.innerHTML='<div class="brandRow"><svg class="mark" viewBox="0 0 32 22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 4.76A8 8 0 0 1 16 17.24A8 8 0 0 1 16 4.76Z" fill="#f2a03d" stroke="none"/><circle cx="11" cy="11" r="8"/><circle cx="21" cy="11" r="8"/></svg><span>NoWord</span></div><h3>Ebeveynlik sorumluluklarınızı NoWord ile yönetin.</h3><ul class="ticks"><li>Sorumluluklar net</li><li>İletişim kontrollü</li><li>Her şey tek takvimde, kayıt altında</li></ul><button type="button" class="main" id="start">Devam</button><button type="button" class="secondary" id="haveInvite">Davet aldım</button>';bind('start',()=>{inviteMode=false;login()});bind('haveInvite',()=>{inviteMode=true;email='';login()})}function login(){step.textContent='Giriş';screen.innerHTML='<button type="button" id="loginBack">‹ Geri</button><h3>E-posta adresiniz</h3><label for="email">E-posta</label><input id="email" type="email" autocomplete="email" placeholder="ornek@eposta.com" value="'+esc(email)+'"><label class="check"><input id="agree" type="checkbox"'+(agreed?' checked':'')+'><span><button type="button" class="inl" id="terms">Kullanım Koşulları</button> ve <button type="button" class="inl" id="privacy">Aydınlatma Metni</button>\'ni okudum, kabul ediyorum.</span></label><p class="error" id="error" role="alert" aria-live="polite"></p><button type="button" class="main" id="continue">Devam</button>';bind('loginBack',()=>{email=root.querySelector('#email').value.trim();welcome()});bind('continue',()=>{let v=root.querySelector('#email').value.trim();if(!mailOk(v))return error('E-posta biçimi hatalı. Adresi ad@ornek.com şeklinde giriniz.');if(!root.querySelector('#agree').checked)return error('Devam etmek için Kullanım Koşulları ve Aydınlatma Metni\'ni kabul ediniz.');email=v;agreed=true;code();NW.svc.timeout(NW.svc.sendCode(v)).catch(()=>{const e=root.querySelector('#error');if(e)e.textContent=NETFAIL})});bind('privacy',()=>legalScreen('priv'));bind('terms',()=>legalScreen('terms'))}function code(){step.textContent='E-posta doğrulama';screen.innerHTML='<button type="button" id="codeBack">‹ Geri</button><h3>Giriş kodunu giriniz</h3><p class="muted">'+esc(email)+'</p><label for="code">6 haneli kod</label><input id="code" inputmode="numeric" maxlength="6" placeholder="000000"><p class="muted" id="codeInfo">Kod bu e-posta adresine gönderildi. Gelmediyse gereksiz klasörünü de kontrol edin.</p><p class="error" id="error" role="alert" aria-live="polite"></p><button type="button" class="main" id="verify">Devam</button><div class="links"><button type="button" id="resend">Kodu yeniden gönder</button><button type="button" id="changeEmail">E-posta değişikliği</button></div>';bind('verify',()=>{const c=root.querySelector('#code').value.trim();if(!/^\d{6}$/.test(c))return error('6 haneli kod giriniz.');const b=root.querySelector('#verify');b.disabled=true;NW.svc.timeout(NW.svc.verifyCode(email,c)).then(r=>{if(root.querySelector('#verify')!==b)return;if(!r||!r.ok){b.disabled=false;return error('Kod hatalı veya süresi dolmuş. Yeni kod isteyebilirsiniz.')}liveRoute()}).catch(()=>{if(root.querySelector('#verify')!==b)return;b.disabled=false;error(NETFAIL)})});bind('codeBack',login);bind('resend',()=>{const b=root.querySelector('#resend');b.disabled=true;NW.svc.timeout(NW.svc.sendCode(email)).then(()=>{const i=root.querySelector('#codeInfo');if(i)i.textContent='Yeni kod gönderildi.';const e=root.querySelector('#error');if(e)e.textContent=''}).catch(()=>error(NETFAIL)).then(()=>{if(b.isConnected)setTimeout(()=>{b.disabled=false},30000)})});bind('changeEmail',login)}function joinInvite(){step.textContent='NoWord daveti';screen.innerHTML='<p class="muted" role="status">Davet aranıyor…</p>';const mine=step.textContent;
+ NW.svc.timeout(NW.svc.getInvite(email)).then(inv=>{if(step.textContent!==mine)return;
+  if(!inv||!inv.children||!inv.children.length){screen.innerHTML='<h3>Davet bulunamadı</h3><p class="muted">Bu e-posta adresine gönderilmiş bir davet yok. Daveti gönderen ebeveynin adresi doğru yazdığından emin olun.</p><p id="inviteMail2"></p><button type="button" class="main" id="inviteBack">Geri</button>';screen.querySelector('#inviteMail2').textContent=email;bind('inviteBack',welcome);return}
+  screen.innerHTML='<h3>Çocuğunuzun planına katılım</h3><p class="muted">Bu e-posta adresine gönderilmiş davet</p><p id="inviteMail2"></p>'+inv.children.map((c,i)=>'<div class="childPreview">'+(i+1)+'. Çocuk · '+esc(c)+'</div>').join('')+'<p class="muted">Katıldığınızda takvimi ve görevleri eşit yetkilerle kullanabilirsiniz. Görünen çocuk adlarını kendi ekranınız için değiştirebilirsiniz.</p><p class="error" id="error" role="alert" aria-live="polite"></p><button type="button" class="main" id="join">Katıl</button>';
+  screen.querySelector('#inviteMail2').textContent=email;
+  bind('join',()=>{const b=root.querySelector('#join');b.disabled=true;NW.svc.timeout(NW.svc.acceptInvite(email)).then(r=>{if(!r||!r.ok)throw new Error('accept');children=inv.children.slice();invited=false;inviteMode=true;home()}).catch(()=>{b.disabled=false;error(NETFAIL)})})
+ }).catch(()=>{if(step.textContent!==mine)return;screen.innerHTML='<h3>Bağlantı kurulamadı</h3><p class="muted">'+NETFAIL+'</p><button type="button" class="main" id="inviteRetry">Tekrar dene</button><button type="button" class="secondary" id="inviteBack">Geri</button>';bind('inviteRetry',joinInvite);bind('inviteBack',welcome)})}function childListSetup(){step.textContent='Çocuklar';screen.innerHTML='<h3>Çocuklar</h3><div id="childList">'+children.map((c,i)=>'<div class="cardrow">'+(i+1)+'. Çocuk · '+esc(c)+'<button type="button" data-setup-edit="'+i+'">Ad değişikliği</button></div>').join('')+'</div><button type="button" class="secondary" id="addNextChild">'+(children.length+1)+'. Çocuk ekle</button><button type="button" class="main" id="nextChild">Devam</button>';bindSetupNames(childListSetup);bind('addNextChild',()=>{childSetup();root.querySelector('#childName').focus()});bind('nextChild',invite)}function bindSetupNames(back){root.querySelectorAll('[data-setup-edit]').forEach(b=>b.onclick=()=>{setupChildDraft=root.querySelector('#childName')?.value||'';setupReturn=back;edit(Number(b.dataset.setupEdit))})}function childSetup(){step.textContent='Çocuk ekleme';screen.innerHTML='<button type="button" id="childBack">‹ Geri</button>'+'<h3>Çocuk ekleme</h3><label for="childName">'+(children.length+1)+'. Çocuk · Ad veya takma ad</label><input id="childName" maxlength="30" placeholder="Ad veya takma ad" value="'+esc(setupChildDraft)+'"><p class="muted">Takma ad kullanabilirsiniz. Sonradan değiştirdiğiniz ad yalnızca sizin ekranınızda görünür.</p><div id="childList">'+children.map((c,i)=>'<div class="cardrow">'+(i+1)+'. Çocuk · '+esc(c)+'<button type="button" data-setup-edit="'+i+'">Ad değişikliği</button></div>').join('')+'</div><button type="button" class="secondary" id="addChild">'+(children.length+2)+'. Çocuk ekle</button><p class="error" id="error" role="alert" aria-live="polite"></p><button type="button" class="main" id="nextChild">Devam</button>';function add(){let v=root.querySelector('#childName').value.trim();if(!v){error('Kullanılacak adı giriniz.');return false}children.push(v);setupChildDraft='';return true}bindSetupNames(childSetup);bind('childBack',()=>{setupChildDraft=root.querySelector('#childName').value;children.length?childListSetup():code()});bind('addChild',()=>{if(add()){childSetup();root.querySelector('#childName').focus()}});bind('nextChild',()=>{if(!root.querySelector('#childName').value.trim()){error(children.length?'Devam etmek için bu çocuğun adını veya takma adını giriniz.':'İlerlemek için en az 1 çocuk eklenmesi gerekir.');return}if(add())invite()})}function invite(){step.textContent='Davet';screen.innerHTML='<h3>Diğer ebeveyne davet</h3><label for="inviteMail">E-posta</label><input id="inviteMail" type="email" placeholder="ornek@eposta.com"><p class="muted">Diğer ebeveyn katıldığında aynı planı eşit yetkilerle kullanırsınız.</p><p class="error" id="error" role="alert" aria-live="polite"></p><button type="button" class="main" id="send">Davet gönder</button><button type="button" class="secondary" id="skip">Şimdilik geç</button>';bind('send',()=>{let v=root.querySelector('#inviteMail').value.trim();if(!mailOk(v))return error('E-posta biçimi hatalı. Adresi ad@ornek.com şeklinde giriniz.');if(v.toLowerCase()===email.toLowerCase())return error('Kendi e-posta adresinize davet gönderemezsiniz. Diğer ebeveynin e-posta adresini giriniz.');const sb=root.querySelector('#send');sb.disabled=true;NW.svc.timeout(NW.svc.ensurePlan(children).then(p=>p&&p.ok===false?p:NW.svc.sendInvite(v))).then(r=>{if(!r||!r.ok)throw new Error('invite');invited=true;pairAnim(home)}).catch(()=>{sb.disabled=false;error(NETFAIL)})});bind('skip',()=>{const sk=root.querySelector('#skip');sk.disabled=true;NW.svc.timeout(NW.svc.ensurePlan(children)).then(p=>{if(p&&p.ok===false)throw new Error('plan');home()}).catch(()=>{sk.disabled=false;error(NETFAIL)})})}function home(){document.getElementById('no').hidden=true;document.getElementById('nw').hidden=false;document.getElementById('nw').dispatchEvent(new CustomEvent('noword-enter',{detail:{names:children,paired:inviteMode,invited:invited,email:email}}));step.textContent='Takvim';screen.innerHTML='<div class="links"><button type="button" id="settings">Çocuklar</button></div><p class="muted">'+(inviteMode?'Bağlantı sağlandı':invited?'Diğer ebeveyn henüz katılmadı':'Diğer ebeveyn henüz davet edilmedi')+'</p><h3>Bugün</h3><p>Bugün için görev yok.</p><p class="muted">'+children.map(esc).join(' · ')+'</p><button type="button" class="main" id="task">Görev ekle</button><button type="button" class="secondary" id="inviteAgain">Diğer ebeveyne davet</button><p class="muted" id="taskInfo"></p>';bind('settings',settings);root.querySelector('#inviteAgain').hidden=inviteMode||invited;bind('inviteAgain',invite);bind('task',()=>root.querySelector('#taskInfo').textContent='')}function settings(){step.textContent='Çocuklar';screen.innerHTML='<h3>Çocuklar</h3>'+children.map((c,i)=>'<div class="cardrow"><span>'+(i+1)+'. Çocuk · '+esc(c)+'</span><button type="button" data-edit="'+i+'">Ad değişikliği</button></div>').join('')+'<button type="button" class="main" id="newChild">'+(children.length+1)+'. Çocuk ekle</button><button type="button" class="secondary" id="backHome">Ayarlara dön</button>';root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(Number(b.dataset.edit)));bind('newChild',()=>edit(-1));bind('backHome',home)}function edit(i){step.textContent=i<0?'Çocuk ekleme':'Kişisel ad';screen.innerHTML='<h3>'+(i<0?(children.length+1)+'. Çocuk ekleme':'Görünen ad')+'</h3><label for="nickname">Ad veya takma ad</label><input id="nickname" maxlength="30" value="'+(i<0?'':esc(children[i]))+'"><p class="muted">'+(i<0?'Çocuk plana doğrudan eklenir. Diğer ebeveyne bilgi gider.':'Bu değişiklik yalnızca sizin ekranınıza yansır. Diğer ebeveyne bildirim gitmez.')+'</p><p class="error" id="error" role="alert" aria-live="polite"></p><button type="button" class="main" id="saveName">'+(i<0?(children.length+1)+'. Çocuk ekle':'Kaydet')+'</button><button type="button" class="secondary" id="cancel">'+(i<0?'‹ Geri':'Vazgeç')+'</button>';bind('cancel',()=>{const back=setupReturn;setupReturn=null;(back||settings)()});bind('saveName',()=>{let v=root.querySelector('#nickname').value.trim();if(!v)return error('Kullanılacak adı giriniz.');if(i<0)children.push(v);else children[i]=v;const back=setupReturn;setupReturn=null;(back||settings)()})}(NW.svc.session()?liveRoute():welcome());window.__nwBoot=(window.__nwBoot|0)|1})();
+</script></div>
+
+<div id="nw" hidden><div id="toast" role="status" aria-live="polite" hidden></div>
+
+<div class="phone">
+<section id="home"><header><h2><svg class="mark" viewBox="0 0 32 22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 4.76A8 8 0 0 1 16 17.24A8 8 0 0 1 16 4.76Z" fill="#f2a03d" stroke="none"/><circle cx="11" cy="11" r="8"/><circle cx="21" cy="11" r="8"/></svg><span>NoWord</span></h2></header>
+<div class="row" id="filters"><button type="button" class="active" data-filter="all">Tümü</button><button type="button" data-filter="mine">Bana ait</button></div>
+<div class="row" id="views"><button type="button" class="active" data-view="Gün">Gün</button><button type="button" data-view="Hafta">Hafta</button><button type="button" data-view="Ay">Ay</button></div>
+<div class="attention"><button type="button" id="pendingBtn"><span class="qn">1</span><span class="ql">Yanıt bekleyenler</span></button><button type="button" id="unassignedBtn"><span class="qn">1</span><span class="ql">Sorumluluk bekleyenler</span></button></div>
+<div class="hero"><div class="daynav"><button type="button" id="prev" aria-label="Önceki gün"><svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><b id="dateTitle">9 Ekim · Cuma</b><button type="button" id="next" aria-label="Sonraki gün"><svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div><p id="daySummary" class="summary" aria-live="polite"></p></div>
+<div id="calendar"></div><div id="tasks" aria-live="polite"></div>
+<button type="button" class="main full" id="add">+ Görev ekle</button></section>
+<section id="form" hidden><header><button type="button" id="back">‹ Geri</button><h3>Görev oluşturma</h3></header>
+<label for="child">Çocuk</label><select id="child"><option>Çocuk 1</option><option>Çocuk 2</option></select>
+<label for="kind">Görev türü</label><select id="kind"><option>Okula bırakma</option><option>Okuldan alma</option><option>Kursa bırakma</option><option>Kurstan alma</option><option>Birlikte zaman</option><option>Alışveriş</option></select>
+<div class="row"><div><label for="date">Gün</label><input id="date" type="date"></div><div><label for="time">Saat</label><input id="time" type="time" value="15:30"></div></div>
+<div id="specific"></div>
+<label for="repeat">Tekrarlama</label><select id="repeat"><option>Bir kez</option><option>Her hafta</option></select>
+<div id="repeatFields" hidden><label>Günler</label><div class="weekdays"><label><input type="checkbox">Pzt</label><label><input type="checkbox">Sal</label><label><input type="checkbox">Çar</label><label><input type="checkbox">Per</label><label><input type="checkbox">Cum</label><label><input type="checkbox">Cmt</label><label><input type="checkbox">Paz</label></div><label for="until">Bitiş tarihi</label><input id="until" type="date" value="2026-12-31"></div>
+<label for="who">Sorumluluk</label><select id="who"><option value="me">Ben</option><option value="other">Diğer ebeveyn</option><option value="none">Henüz belli değil</option></select>
+<div class="noteHeader"><label for="taskNote">Görev notu · İsteğe bağlı</label></div>
+<textarea id="taskNote" placeholder="Örn. Mavi çantası da alınsın." aria-describedby="noteHelp"></textarea>
+<div class="noteMeta"><p class="note" id="noteHelp">Yapay zeka tarafından düzenleniyor</p><p class="note" id="taskNoteCount">0 / 300</p></div><p class="note" id="noteProcessing" aria-live="polite"></p>
+<div id="taskNotePreview" class="comparison" hidden aria-live="polite"><strong>İletilecek not</strong><p id="taskNeutralNote"></p><span class="note" id="taskNeutralCount"></span></div>
+<p class="note" id="taskNoteError" role="alert"></p>
+<p class="note" id="effect"></p><button type="button" class="main full" id="save">Görevi kaydet</button></section>
+<section id="detail" hidden><header><button type="button" id="dback">‹ Geri</button><span class="muted">Görev ayrıntısı</span></header><h3 id="detailTitle">Okuldan alma</h3><div class="dl"><div class="detail-line"><span>Çocuk</span><span id="detailChild">Çocuk</span></div><div class="detail-line"><span id="lblDay">Gün</span><span id="detailDate">9 Ekim · Cuma</span></div><div class="detail-line"><span id="lblTime">Saat</span><span id="detailTime">15.30</span></div><div class="detail-line"><span>Sorumlu</span><span id="detailWho">Siz</span></div><div class="detail-line"><span>Tekrarlama</span><span id="detailRepeat">Bir kez</span></div><div class="detail-line" id="detailNoteLine" hidden><span>Görev notu</span><span id="detailNote"></span></div></div><div id="detailActions"></div><div id="changeBox" hidden><div class="comparison"><span class="muted">Değişiklik talebi</span><div id="changeFields"></div><span class="status">Yanıt bekleniyor</span></div><p class="note" id="changeHint"></p><button type="button" id="withdraw" class="outline">Talebi geri çek</button></div><p id="detailResult" class="note" aria-live="polite"></p></section><section id="notifs" hidden><header><button type="button" id="nBack">‹ Geri</button><span class="muted">Bildirimler</span></header><h3>Bildirimler</h3><div id="notifList"></div><div class="sgroup"><h4>Geçmiş</h4><button type="button" class="outline" id="historyBtn">İptal edilen görevler</button></div></section>
+<section id="settingsPage" hidden><header><button type="button" id="sBack">‹ Geri</button><span class="muted">Ayarlar</span></header><h3>Ayarlar</h3>
+<div class="sgroup"><h4>Hesap</h4><div class="srow"><span>E-posta</span><b id="setEmail"></b></div><button type="button" class="outline" id="logout">Çıkış yap</button></div>
+<div class="sgroup"><h4>Çocuklar ve bağlantı</h4><button type="button" class="outline" id="childrenSettings">Çocuklar</button><div class="srow"><span>Diğer ebeveyn</span><b id="setPair"></b></div><button type="button" class="outline" id="reinviteBtn">Diğer ebeveyni davet et</button><button type="button" class="outline" id="unpairBtn">Bağlantıyı kes</button>
+<div id="unpairConfirm" class="confirm" hidden><p><b>Bağlantı kesilsin mi?</b></p><p class="note">Diğer ebeveynle bağlantınız sona erer. Sizin sorumlu olduğunuz gelecek görevler "Sorumlu bekliyor" durumuna geçer. Bekleyen talepler kapanır. Geçmiş kayıtlar korunur. Önce verilerinizin kopyasını isteyebilirsiniz.</p><div class="row"><button type="button" id="unpairNo">Vazgeç</button><button type="button" class="main" id="unpairYes">Bağlantıyı kes</button></div></div></div>
+<div class="sgroup"><h4>Bildirimler</h4>
+<label class="srow sw"><span>Talepler ve yanıtlar<small>Her zaman açık</small></span><input type="checkbox" id="pfReq" role="switch" checked disabled></label>
+<label class="srow sw"><span>Diğer ebeveyn görevi tamamladığında</span><input type="checkbox" id="pfDone" role="switch" checked></label>
+<label class="srow sw"><span>Görev hatırlatması</span><input type="checkbox" id="pfRem" role="switch" checked></label>
+<div class="srow" id="pfLeadRow"><label for="pfLead">Hatırlatma zamanı</label><select id="pfLead"><option value="15 dakika">15 dakika önce</option><option value="30 dakika">30 dakika önce</option><option value="1 saat" selected>1 saat önce</option><option value="2 saat">2 saat önce</option></select></div>
+<label class="srow sw"><span>Bilgilendirmeler<small>Bağlantı, yeni çocuk, sorumlusuz görev</small></span><input type="checkbox" id="pfInfo" role="switch" checked></label></div>
+<div class="sgroup"><h4>Yasal metinler</h4><button type="button" class="outline" id="lgPriv">Aydınlatma Metni</button><button type="button" class="outline" id="lgTerms">Kullanım Koşulları</button><button type="button" class="outline" id="lgPol">Gizlilik Politikası</button></div>
+<div class="sgroup"><h4>Verileriniz</h4><button type="button" class="outline" id="exportData">Verilerimi e-posta ile iste</button><button type="button" class="outline danger" id="deleteAcc">Hesabı sil</button>
+<div id="deleteConfirm" class="confirm" hidden><p><b>Hesap silinsin mi?</b></p><p class="note">Kişisel verileriniz silinir. Ortak kayıtlar diğer ebeveynin ekranında anonim olarak kalır. Bu işlem geri alınamaz.</p><div class="row"><button type="button" id="deleteNo">Vazgeç</button><button type="button" class="main danger" id="deleteYes">Hesabı sil</button></div></div></div>
+<div class="sgroup"><h4>Destek</h4><div class="srow" id="supportRow" hidden><span>İletişim</span><b id="supportMail"></b></div><div class="srow"><span>Sürüm</span><b id="appVer"></b></div></div>
+</section>
+<section id="legalPage" hidden><header><button type="button" id="lBack">‹ Geri</button><span class="muted">Yasal metinler</span></header><h3 id="legalTitle"></h3><p class="note" id="legalNote"></p><div id="legalBody"></div></section>
+<section id="pending" hidden><header><button type="button" id="pback">‹ Geri</button><span class="muted">Yanıt bekleyenler</span></header><h3>Okula bırakma</h3><p class="muted">Çocuk 1 · 12 Ekim–30 Kasım</p><div class="comparison"><p>Bu görevi yapabilir misiniz?</p><p>Pazartesi · Çarşamba · Cuma</p><p>08.00 · Her hafta</p></div><button type="button" class="main full" id="accept">Tümüne uygun</button><button type="button" class="outline" id="pickDays">Gün seçimi</button><button type="button" class="outline" id="decline">Tümüne uygun değil</button><div id="dayChoices" hidden><label>Haftanın günleri</label><div class="weekdays"><label><input type="checkbox" checked value="Pazartesi">Pzt</label><label><input type="checkbox" checked value="Çarşamba">Çar</label><label><input type="checkbox" checked value="Cuma">Cum</label></div><label for="exceptionDate">İstisna tarihi</label><input type="date" id="exceptionDate" min="2026-10-12" max="2026-11-30"><button type="button" class="outline" id="excludeDate">Tarihi hariç tut</button><p class="note" id="exceptions"></p><p class="note">Seçili günler: Uygun<br>Diğer günler: Uygun değil</p><button type="button" class="main full" id="sendDays">Seçimleri ilet</button></div><div id="replyResults" aria-live="polite"></div><p id="reply" aria-live="polite"></p></section>
+<section id="history" hidden><header><button type="button" id="historyBack">‹ Geri</button><span class="muted">İptal edilen görevler</span></header><div id="cancelledList"></div></section><section id="unassigned" hidden><header><button type="button" id="uback">‹ Geri</button><span class="muted">Sorumluluk bekleyenler</span></header><h3>Alışveriş</h3><p class="muted">Çocuk 1 · 10 Ekim</p><div class="detail-line"><span>Tür</span><span>Spor ayakkabı</span></div><div class="detail-line"><span>Numara</span><span>36</span></div><div class="detail-line" id="unassignedOwner" hidden><span>Sorumlu</span><span id="unassignedWho">Henüz belli değil</span></div><label id="unassignedLabel" for="unassignedSelect">Sorumlu</label><select id="unassignedSelect"><option value="me">Ben</option><option value="other">Diğer ebeveyn</option></select><button type="button" class="main full" id="takeUnassigned">Kaydet</button><div id="unassignedConfirm" hidden><p class="note">Sorumlu belirleme talebi diğer ebeveyne iletilsin mi?</p><div class="row"><button type="button" id="cancelUnassigned">Vazgeç</button><button type="button" id="sendUnassigned">İlet</button></div></div><p class="note" id="unassignedResult" aria-live="polite"></p></section>
+</div>
+<script>
+(()=>{const BASE=(()=>{const n=new Date();return{y:n.getFullYear(),m:n.getMonth(),d:n.getDate(),iso:n.toLocaleDateString('sv-SE')}})();const r=document.getElementById('nw'),q=s=>r.querySelector(s);let childNames=[],view='Gün',filter='all',offset=0,backTo='home';const ICON_ALERT='<svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';const childLabel=x=>childNames[x.childId??0]||'Çocuk';const safeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));document.getElementById('nw').addEventListener('noword-enter',e=>{childNames=[...e.detail.names];q('#child').replaceChildren(...childNames.map((name,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=name;return o}));['pending','history','unassigned'].forEach(id=>{const node=q('#'+id+' .muted');if(node)node.textContent=node.textContent.replace(/^(Çocuk 1|Çocuk|[^·]+)(?= ·)/,childNames[0]||'Çocuk').replace(/Çocuk 1/g,childNames[0]||'Çocuk')});render()});let items=[];function show(id){['home','form','pending','detail','unassigned','history','notifs','settingsPage','legalPage'].forEach(x=>q('#'+x).hidden=x!==id)}function visibleTasks(){const date=new Date(BASE.y,BASE.m,BASE.d+offset),weekStart=offset-(date.getDay()+6)%7;return items.filter(x=>!x.cancelled&&(filter==='all'||x.mine||(x.proposal&&x.proposal.who==='Siz'))&&childOk(x)&&(view==='Gün'?x.day===offset:view==='Hafta'?x.day>=weekStart&&x.day<=weekStart+6:new Date(BASE.y,BASE.m,BASE.d+x.day).getMonth()===date.getMonth()&&new Date(BASE.y,BASE.m,BASE.d+x.day).getFullYear()===date.getFullYear())).sort((a,b)=>Number(!!a.done)-Number(!!b.done)||a.day-b.day||timeOrder(a.time)-timeOrder(b.time))}
+function taskDate(item,end=false){const date=new Date(BASE.y,BASE.m,BASE.d+item.day),parts=item.time.split(/[.:]/).map(Number);if(Number.isFinite(parts[0]))date.setHours(parts[0],parts[1]||0,0,0);else date.setHours(23,59,59,0);if(end&&item.title==='Birlikte zaman'&&item.extra?.endDate)return new Date(item.extra.endDate+'T'+item.extra.endTime);return date}
+function render(){const date=new Date(BASE.y,BASE.m,BASE.d+offset),weekStart=new Date(date);weekStart.setDate(date.getDate()-(date.getDay()+6)%7);const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+6);const fmt=d=>d.toLocaleDateString('tr-TR',{day:'numeric',month:'long'});const fmtY=d=>d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});q('#dateTitle').textContent=view==='Gün'?date.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric',weekday:'long'}):view==='Hafta'?(weekStart.getFullYear()===weekEnd.getFullYear()?fmt(weekStart):fmtY(weekStart))+' – '+fmtY(weekEnd):date.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});const days=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();const lead=(new Date(date.getFullYear(),date.getMonth(),1).getDay()+6)%7,dow=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'],dayOff=d=>Math.round((new Date(date.getFullYear(),date.getMonth(),d,12)-new Date(BASE.y,BASE.m,BASE.d,12))/86400000),unit=view==='Gün'?'gün':view==='Hafta'?'hafta':'ay';q('#prev').setAttribute('aria-label','Önceki '+unit);q('#next').setAttribute('aria-label','Sonraki '+unit);q('#calendar').innerHTML=view==='Ay'?'<div class="month">'+dow.map(n=>'<span class="dow">'+n+'</span>').join('')+'<span></span>'.repeat(lead)+Array.from({length:days},(_,i)=>{const o=dayOff(i+1),has=items.some(x=>!x.cancelled&&x.day===o&&(filter==='all'||x.mine||(x.proposal&&x.proposal.who==='Siz'))&&childOk(x));return '<button type="button" data-day="'+(i+1)+'" class="'+(has?'has ':'')+(o===0?'today ':'')+(o===offset?'sel':'')+'" aria-label="'+(i+1)+' '+date.toLocaleDateString('tr-TR',{month:'long'})+(has?', görev var':'')+'">'+(i+1)+'</button>'}).join('')+'</div>':'';const list=visibleTasks();items.forEach(x=>x.late=!x.done&&!x.cancelled&&Date.now()>+taskDate(x,true));q('#tasks').replaceChildren(...list.map(item=>{const card=document.createElement('button');card.type='button';card.className='task '+(item.done?'completed':'');card.style.textAlign='left';const title=document.createElement('b');title.textContent=item.title;const meta=document.createElement('p');meta.className='muted';meta.textContent=(view==='Gün'?'':fmt(new Date(BASE.y,BASE.m,BASE.d+item.day))+' · ');{const k=document.createElement('span');k.className='kid';k.textContent=childLabel(item);meta.append(k)}const tm=document.createElement('span');tm.className='tm';tm.textContent=item.time;if(item.late&&!item.done){const alert=document.createElement('span');alert.className='lateAlert';alert.innerHTML=ICON_ALERT+'Zamanı geçti';meta.append(alert)}const owner=document.createElement('div');owner.className='status owner '+(item.who==='Siz'?'o-me':item.who==='Henüz belli değil'?'o-none':'o-other');owner.textContent='Sorumlu: '+(item.proposal&&item.proposal.isNew?item.proposal.who:item.who);const status=document.createElement('div');status.className='status taskStatus '+(item.done?'s-done':(item.cancelPending||item.proposal||item.who==='Henüz belli değil')?'s-wait':'s-plan');status.textContent=item.done?'Tamamlandı':item.cancelPending?'İptal yanıtı bekleniyor':item.incoming?'Yanıtınız bekleniyor':item.proposal?waitingLabel(item):item.who==='Henüz belli değil'?'Sorumlu bekliyor':'Planlandı';const chips=document.createElement('div');chips.className='chips';chips.append(owner,status);card.append(tm,title,meta,chips);card.onclick=()=>{backTo='home';openDetail(item)};return card}));q('#daySummary').textContent=list.length?list.length+' görev · '+list.filter(x=>x.mine).length+' size ait · '+list.filter(x=>x.done).length+' tamamlandı':'';if(!list.length){const em=document.createElement('p');em.className='empty';em.textContent=view==='Gün'?'Bu tarihte görev yok.':view==='Hafta'?'Bu hafta görev yok.':'Bu ay görev yok.';q('#tasks').replaceChildren(em)}q('#calendar').querySelectorAll('button').forEach(b=>b.onclick=()=>{offset=Math.round((new Date(date.getFullYear(),date.getMonth(),Number(b.dataset.day),12)-new Date(BASE.y,BASE.m,BASE.d,12))/86400000);setView('Gün')});if(typeof lucide!=='undefined')lucide.createIcons()}
+function setView(v){view=v;q('#views').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));render()}q('#views').querySelectorAll('button').forEach(b=>b.onclick=()=>setView(b.dataset.view));q('#filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;q('#filters').querySelectorAll('button').forEach(c=>c.classList.toggle('active',c===b));render()});function navigate(dir){if(view==='Ay'){const d=new Date(BASE.y,BASE.m,BASE.d+offset);offset=Math.round((new Date(d.getFullYear(),d.getMonth()+dir,1,12)-new Date(BASE.y,BASE.m,BASE.d,12))/86400000)}else offset+=dir*(view==='Hafta'?7:1);render()}q('#prev').onclick=()=>navigate(-1);q('#next').onclick=()=>navigate(1);q('#add').onclick=()=>{let d=new Date(BASE.y,BASE.m,BASE.d+offset);q('#date').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');show('form')};q('#back').onclick=q('#pback').onclick=()=>show('home');q('#pendingBtn').onclick=()=>show('pending');q('#who').onchange=()=>{q('#effect').textContent={me:'Diğer ebeveynin onayı beklenir.',other:'Diğer ebeveynin yanıtı beklenir.',none:'Sorumlu bekleyecek.'}[q('#who').value];q('#save').textContent='Görevi kaydet'};q('#save').onclick=()=>{if(softWarn())return;if(q('#taskNote').value.trim()&&noteSource!==q('#taskNote').value){q('#taskNoteError').textContent='Notunuzun düzenlenmesini bekleyiniz.';return}const who=q('#who').value,start=new Date(q('#date').value+'T12:00:00'),weekly=q('#repeat').value==='Her hafta',end=weekly?new Date(q('#until').value+'T12:00:00'):start,checks=Array.from(q('#repeatFields').querySelectorAll('input[type=checkbox]')),days=checks.map((c,i)=>c.checked?(i+1)%7:-1).filter(i=>i>=0);let error=q('#formError');if(!error){error=document.createElement('p');error.id='formError';error.className='note';error.setAttribute('role','alert');q('#save').before(error)}if(q('#kind').value==='Birlikte zaman'&&(!q('#endDate').value||!q('#endTime').value||new Date(q('#endDate').value+'T'+q('#endTime').value)<=new Date(q('#date').value+'T'+q('#time').value))){error.textContent='Bitiş günü ve saati başlangıçtan sonra olmalıdır.';return}if(!q('#date').value||!Number.isFinite(+start)){error.textContent='Gün seçiniz.';return}if(!q('#time').value){error.textContent='Saat seçiniz.';return}if(weekly&&(!q('#until').value||!Number.isFinite(+end))){error.textContent='Bitiş tarihini seçiniz.';return}if(end<start){error.textContent='Bitiş tarihi başlangıç gününden önce olamaz.';return}if(weekly&&!days.length){error.textContent='Tekrarlama için en az bir gün seçiniz.';return}const dates=[];for(let date=new Date(start);date<=end;date.setDate(date.getDate()+1)){if(!weekly||days.includes(date.getDay()))dates.push(new Date(date));if(dates.length>366){error.textContent='En fazla 366 tekrar oluşturulabilir.';return}}if(!dates.length){error.textContent='Seçilen aralıkta tekrarlama günü yok.';return}NW.live.createFromForm(dates.map(d=>({iso:d.toLocaleDateString('sv-SE'),extra:occurrenceSpecific(d,start)})),{kind:q('#kind').value,child:Number(q('#child').value),time:q('#time').value,who,note:neutralNote||''},error)};q('#historyBtn').onclick=()=>{show('history');q('#cancelledList').replaceChildren(...items.filter(x=>x.cancelled).map(item=>{const el=document.createElement('div');el.className='task';const title=document.createElement('b');title.textContent=item.title;const info=document.createElement('p');info.className='muted';info.textContent=childLabel(item)+' · '+new Date(BASE.y,BASE.m,BASE.d+item.day).toLocaleDateString('tr-TR');const state=document.createElement('span');state.className='status';state.textContent='İptal edildi';el.append(title,info,state);return el}));if(!q('#cancelledList').children.length)q('#cancelledList').textContent='İptal edilen görev yok.'};q('#historyBack').onclick=()=>{openNotifs()};q('#unassignedBtn').onclick=()=>show('unassigned');q('#uback').onclick=()=>show('home');q('#takeUnassigned').onclick=()=>{if(q('#unassignedSelect').value==='other'){q('#unassignedConfirm').hidden=false;return;}q('#unassignedSelect').hidden=true;q('#unassignedLabel').hidden=true;q('#unassignedOwner').hidden=false;let item=items.find(x=>x.title==='Alışveriş');item.mine=true;item.who='Siz';q('#unassignedWho').textContent='Siz';q('#unassignedResult').textContent='Kaydedildi.';q('#takeUnassigned').hidden=true;updateWaitingSections();render()};q('#cancelUnassigned').onclick=()=>q('#unassignedConfirm').hidden=true;q('#sendUnassigned').onclick=()=>{q('#unassignedConfirm').hidden=true;q('#unassignedSelect').hidden=true;q('#unassignedLabel').hidden=true;q('#unassignedOwner').hidden=false;q('#takeUnassigned').hidden=true;q('#unassignedResult').textContent='Talep iletildi.'};function showReplyResults(chosen){q('#replyResults').replaceChildren(...['Pazartesi','Çarşamba','Cuma'].map(day=>{const row=document.createElement('p');row.textContent=day+' · '+(chosen.includes(day)?'Uygun':'Uygun değil');return row}));if(q('#exceptions').textContent){const row=document.createElement('p');row.textContent=q('#exceptionDate').value.split('-').reverse().join('.')+' · Uygun değil';q('#replyResults').append(row)}}
+function finishReply(){['accept','decline','pickDays'].forEach(id=>q('#'+id).hidden=true);q('#dayChoices').hidden=true;}q('#pickDays').onclick=()=>{const open=q('#dayChoices').hidden;q('#dayChoices').hidden=!open;q('#accept').hidden=open;q('#decline').hidden=open;q('#pickDays').textContent=open?'Gün seçimini kapat':'Gün seçimi'};q('#excludeDate').onclick=()=>{if(q('#exceptionDate').value)q('#exceptions').textContent=q('#exceptionDate').value.split('-').reverse().join('.')+' hariç tutulacak'};q('#sendDays').onclick=()=>{finishReply();let chosen=Array.from(q('#dayChoices').querySelectorAll('input[type=checkbox]:checked')).map(x=>x.value);applySampleReply(chosen);showReplyResults(chosen);q('#reply').textContent='Seçimler iletildi.';updateWaitingSections();q('#dayChoices').hidden=true};q('#accept').onclick=()=>{resetOverrides();finishReply();applySampleReply(replyBase);showReplyResults(replyBase);q('#reply').textContent='Kaydedildi.';updateWaitingSections()};q('#decline').onclick=()=>{resetOverrides();finishReply();applySampleReply([]);showReplyResults([]);q('#reply').textContent='Seçiminiz iletildi. Sorumluluk henüz belli değil.';updateWaitingSections()};let current;const replyBase=['Pazartesi','Çarşamba','Cuma'];function applySampleReply(chosen){for(let day=3;day<=52;day++){const weekday=new Date(BASE.y,BASE.m,BASE.d+day).getDay(),name={1:'Pazartesi',3:'Çarşamba',5:'Cuma'}[weekday];if(!name)continue;const excluded=excludedDates.has(new Date(BASE.y,BASE.m,BASE.d+day).toLocaleDateString('sv-SE'));const accepted=chosen.includes(name)&&!excluded;items.push({childId:0,title:'Okula bırakma',time:'08.00',who:accepted?'Siz':'Henüz belli değil',mine:accepted,day,recurring:true,seriesId:'sample-school-series'})}render()}
+function changeNames(p){const names=[];if('who'in p)names.push('Sorumlu');if('day'in p)names.push('Tarih');if('time'in p)names.push('Saat');if('title'in p)names.push('Görev');if('childId'in p)names.push('Çocuk');if('extra'in p)names.push('Ayrıntı');if('note'in p)names.push('Görev notu');return names.join(' ve ')}function waitingLabel(item){return item.proposal?(item.proposal.isNew?'Diğer ebeveynin yanıtı bekleniyor':changeNames(item.proposal)+' değişikliği bekleniyor'):'Planlandı'}function completionAllowed(item){if(!['Okuldan alma','Okula bırakma','Kursa bırakma','Kurstan alma','Etkinliğe götürme','Birlikte zaman'].includes(item.title))return true;const d=new Date(BASE.y,BASE.m,BASE.d+item.day),parts=item.time.split(/[.:]/).map(Number);d.setHours(parts[0]||0,parts[1]||0,0,0);return Date.now()>=+d}function describe(item){return ['Görev: '+item.title,'Çocuk: '+childLabel(item),'Tarih: '+new Date(BASE.y,BASE.m,BASE.d+item.day).toLocaleDateString('tr-TR'),'Saat: '+item.time,'Sorumlu: '+item.who].join(' · ')}
+function showChanges(item){q('#changeBox').hidden=false;{const nw=!!(item.proposal&&item.proposal.isNew);q('#changeBox .comparison').hidden=nw;q('#withdraw').textContent=nw?'Görevi geri çek':'Talebi geri çek';if(nw){q('#changeHint').textContent='Diğer ebeveynin yanıtı bekleniyor. Onaylanana kadar görev kesinleşmez; düzenlerseniz güncel hâli iletilir.';return}}const p=item.proposal,fields=[['who','Sorumlu',v=>v],['day','Tarih',v=>new Date(BASE.y,BASE.m,BASE.d+v).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})],['time','Saat',v=>v],['title','Görev',v=>v],['childId','Çocuk',v=>childNames[v]||'Çocuk']];q('#changeFields').replaceChildren(...fields.filter(([key])=>key in p).map(([key,label,format])=>{const row=document.createElement('p');row.textContent=label+': '+format(key==='childId'?(item[key]??0):item[key])+' → '+format(p[key]);return row}));q('#changeHint').textContent='who'in p?'Yanıt gelene kadar sorumlu değişmez.':'Yanıt gelene kadar mevcut plan geçerli.';const gN=p.requestId?items.filter(y=>y.proposal&&y.proposal.requestId===p.requestId&&!y.done&&!y.cancelled).length:1;if(gN>1)q('#changeHint').textContent+=' Bu talep '+gN+' görevi kapsıyor.';if(p.extra){[['type','Tür'],['size','Numara / beden'],['endDate','Bitiş günü'],['endTime','Bitiş saati']].filter(([key])=>(item.extra?.[key]||'')!==(p.extra[key]||'')).forEach(([key,label])=>{const row=document.createElement('p');row.textContent=label+': '+(item.extra?.[key]||'—')+' → '+(p.extra[key]||'—');q('#changeFields').append(row)})}if('note'in p){const row=document.createElement('p');row.textContent='Görev notu: '+(item.note||'—')+' → '+(p.note||'—');q('#changeFields').append(row)}if(p.requestNote){const row=document.createElement('p');row.className='reqNoteView';row.textContent='Değişiklik notu: '+p.requestNote;q('#changeFields').append(row)}q('#changeBox .status').textContent='Diğer ebeveynin yanıtı bekleniyor'}
+function openDetail(item){current=item;show('detail');q('#detailChild').replaceChildren(Object.assign(document.createElement('span'),{className:'kid',textContent:childLabel(item)}));q('#detailTitle').textContent=item.title;q('#detailDate').textContent=new Date(BASE.y,BASE.m,BASE.d+item.day).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});q('#detailTime').textContent=item.time;q('#detailWho').textContent=item.proposal&&item.proposal.isNew?item.proposal.who:item.who;q('#detailRepeat').textContent=item.recurring?'Her hafta':'Bir kez';q('#detailNoteLine').hidden=!item.note;q('#detailNote').textContent=item.note||'';q('#changeBox').hidden=true;q('#detailResult').textContent='';q('#detailActions').innerHTML=item.done?(item.mine?'<button type="button" class="outline" id="doneTask">Tamamlandı işaretini geri al</button>':'<p class="note">Tamamlandı</p>'):item.cancelPending?'<div class="comparison"><span class="muted">İptal talebi</span></div><div class="row"><button type="button" id="cancelYes">Uygun</button><button type="button" id="cancelNo">Uygun değil</button></div>':item.mine?'<button type="button" class="main full" id="doneTask">'+(item.done?'Tamamlandı işaretini geri al':'Tamamlandı')+'</button><button type="button" class="outline" id="changeTask">Sorumlu değişikliği</button>':item.who==='Henüz belli değil'?'<button type="button" class="main full" id="takeTask">Sorumluluğu al</button>':'<button type="button" class="main full" id="requestTask">Sorumluluğu al</button>';if(item.late&&!item.done){const w=document.createElement('div');w.className='detailWarning';w.innerHTML=ICON_ALERT+' Zamanı geçti';q('#detailActions').prepend(w)}if(!item.done&&!item.cancelPending&&(!item.proposal||item.proposal.isNew)){const edit=document.createElement('button');edit.id='editTask';edit.className='outline';edit.textContent='Görev düzenleme';q('#detailActions').append(edit);edit.onclick=()=>{const date=new Date(BASE.y,BASE.m,BASE.d+item.day),iso=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');q('#detailActions').innerHTML='<label for="editChild">Çocuk</label><select id="editChild">'+childNames.map((n,i)=>'<option value="'+i+'">'+safeText(n)+'</option>').join('')+'</select><label for="editKind">Görev</label><select id="editKind">'+Array.from(q('#kind').options).map(o=>'<option>'+safeText(o.value)+'</option>').join('')+'</select><label for="editDay">Gün</label><input id="editDay" type="date"><label for="editTime">Saat</label><input id="editTime" type="time"><p class="note" id="editError" role="alert"></p><button type="button" class="main full" id="saveTime">Kaydet</button><button type="button" class="outline" id="cancelEdit">Vazgeç</button>';q('#editKind').value=item.title;if(item.proposal&&item.proposal.isNew){const w=document.createElement('div');w.innerHTML='<label for="editWho">Sorumlu</label><select id="editWho"><option value="Siz">Siz</option><option value="Diğer ebeveyn">Diğer ebeveyn</option></select>';q('#editKind').after(...w.children);q('#editWho').value=item.proposal.who}q('#editChild').value=String(item.childId??0);q('#editDay').value=iso;q('#editTime').value=item.time.replace('.',':');q('#cancelEdit').onclick=()=>openDetail(item);q('#saveTime').onclick=()=>{const changes={},day=Math.round((new Date(q('#editDay').value+'T12:00:00')-new Date(BASE.iso+'T12:00:00'))/86400000),time=q('#editTime').value.replace(':','.');if(!Number.isFinite(day)||!time){q('#editError').textContent='Gün ve saat seçiniz.';return}if(day!==item.day)changes.day=day;if(time!==item.time)changes.time=time;if(q('#editKind').value!==item.title)changes.title=q('#editKind').value;if(Number(q('#editChild').value)!==(item.childId??0))changes.childId=Number(q('#editChild').value);if(q('#editWho')&&q('#editWho').value!==item.proposal.who)changes.who=q('#editWho').value;if(!Object.keys(changes).length){openDetail(item);return}const needsReply=(!item.mine&&item.who!=='Henüz belli değil')||changes.title!==undefined||changes.childId!==undefined||(['Okuldan alma','Okula bırakma','Kursa bırakma','Kurstan alma','Etkinliğe götürme','Birlikte zaman'].includes(item.title)&&(changes.day!==undefined||changes.time!==undefined));if(needsReply){const label=changeNames(changes);q('#detailActions').innerHTML='<p class="note" id="editConfirm"></p><button type="button" class="main full" id="sendEdit">Değişikliği ilet</button><button type="button" class="outline" id="cancelSendEdit">Vazgeç</button>';q('#editConfirm').textContent='Değişiklik: '+label;q('#cancelSendEdit').onclick=()=>openDetail(item);{const rn=attachNote(q('#sendEdit'),q('#sendEdit'),'Saati değiştirmem lazım, o gün erken çıkacağım.');q('#sendEdit').onclick=()=>{if(rn.value()===null)return;item.proposal=changes;if(rn.value())item.proposal.requestNote=rn.value();openDetail(item);render()}}}else{Object.assign(item,changes);openDetail(item);render()}}}}
+let yes=q('#cancelYes'),no=q('#cancelNo');if(yes)yes.onclick=()=>{item.cancelled=true;item.cancelPending=false;show('home');render()};if(no)no.onclick=()=>{item.cancelPending=false;openDetail(item);q('#detailResult').textContent='Mevcut görev korundu.';render()};let done=q('#doneTask'),take=q('#takeTask'),change=q('#changeTask'),request=q('#requestTask');if(done&&!item.done&&!completionAllowed(item)){done.disabled=true;const hint=document.createElement('p');hint.className='note';hint.id='doneHint';hint.textContent=item.title==='Birlikte zaman'?'Birlikte zaman bitiş saatinden sonra tamamlandı olarak işaretlenebilir.':'Planlanan saatten itibaren tamamlandı olarak işaretlenebilir.';done.after(hint)}if(done)done.onclick=()=>{if(!item.done&&!completionAllowed(item))return;item.done=!item.done;openDetail(item);q('#detailResult').textContent=item.done?'Görev tamamlandı.':'Görev yeniden açık.';render()};if(take){const sel=scopePicker(item,take,takeTargets,backTo==='unassigned');take.onclick=()=>{const ts=takeTargets(item,sel?sel.value:'one'),rid=ts.length>1?'req-'+Date.now()+'-'+Math.random():null;ts.forEach(x=>{x.proposal={who:'Siz'};if(rid)x.proposal.requestId=rid});openDetail(item);q('#detailResult').textContent=(ts.length>1?ts.length+' görev için talep iletildi. ':'Talep iletildi. ')+'Diğer ebeveynin yanıtı bekleniyor.';render()}};if(change)change.onclick=()=>{q('#detailActions').innerHTML='<p class="note">Sorumlu değişikliği talebi</p><div class="row"><button type="button" id="cancelChange">Vazgeç</button><button type="button" class="main" id="sendChange">Talebi ilet</button></div>';q('#cancelChange').onclick=()=>openDetail(item);const sel=scopePicker(item,q('#cancelChange').parentNode,requestTargets,false);const rn=attachNote(q('#cancelChange').parentNode,q('#sendChange'),'Toplantım uzayacak, bu sefer sen alabilir misin?');q('#sendChange').onclick=()=>{if(rn.value()===null)return;const ts=requestTargets(item,sel?sel.value:'one'),rid=ts.length>1?'req-'+Date.now()+'-'+Math.random():null;ts.forEach(x=>{x.proposal={who:'Diğer ebeveyn',requestNote:rn.value()};if(rid)x.proposal.requestId=rid});openDetail(item);render()}};if(request)request.onclick=()=>{q('#detailActions').innerHTML='<p class="note">Sorumlu değişikliği talebi</p><div class="row"><button type="button" id="cancelTake">Vazgeç</button><button type="button" class="main" id="sendTake">Talebi ilet</button></div>';q('#cancelTake').onclick=()=>openDetail(item);const sel=scopePicker(item,q('#cancelTake').parentNode,requestTargets,false);const rn=attachNote(q('#cancelTake').parentNode,q('#sendTake'),'Bu sefer ben alabilirim, sorun olmaz.');q('#sendTake').onclick=()=>{if(rn.value()===null)return;const ts=requestTargets(item,sel?sel.value:'one'),rid=ts.length>1?'req-'+Date.now()+'-'+Math.random():null;ts.forEach(x=>{x.proposal={who:'Siz',requestNote:rn.value()};if(rid)x.proposal.requestId=rid});openDetail(item);render()}};if(item.proposal){q('#changeBox').hidden=false;showChanges(item);if(item.proposal.isNew)Array.from(q('#detailActions').children).forEach(c=>{if(c.id!=='editTask')c.remove()});else q('#detailActions').innerHTML='';if(item.mine&&!item.done){const d=document.createElement('button');d.type='button';d.className='main full';d.id='doneTask';d.textContent='Tamamlandı';q('#detailActions').append(d);if(!completionAllowed(item)){d.disabled=true;const h=document.createElement('p');h.className='note';h.id='doneHint';h.textContent=item.title==='Birlikte zaman'?'Birlikte zaman bitiş saatinden sonra tamamlandı olarak işaretlenebilir.':'Planlanan saatten itibaren tamamlandı olarak işaretlenebilir.';d.after(h)}d.onclick=()=>{if(!completionAllowed(item))return;item.done=true;delete item.proposal;render();openDetail(item);q('#detailResult').textContent='Görev tamamlandı. Bu tarih bekleyen talepten çıkarıldı.'}}}}
+
+function takeTargets(item,scope){return scope==='future'&&item.seriesId?items.filter(x=>x.seriesId===item.seriesId&&x.day>=item.day&&!x.done&&!x.cancelled&&!x.proposal&&!x.cancelPending&&!x.incoming&&x.who==='Henüz belli değil'):[item]}
+function requestTargets(item,scope){return scope==='future'&&item.seriesId?items.filter(x=>x.seriesId===item.seriesId&&x.day>=item.day&&!x.done&&!x.cancelled&&!x.proposal&&!x.cancelPending&&!x.incoming&&x.who===item.who):[item]}
+function scopePicker(item,before,targetsFn,fromQueue){const grp=targetsFn(item,'future');if(!item.seriesId||grp.length<2)return null;const w=document.createElement('div');w.innerHTML='<label for="actionScope">Kapsam</label><select id="actionScope"><option value="one">Yalnızca bu tarih</option><option value="future">Bu tarih ve sonrası · '+grp.length+' görev</option></select>';before.before(w);const sel=w.querySelector('select');sel.value=fromQueue?'future':'one';return sel}
+function cancelTargets(item,scope){return scope==='future'&&item.seriesId?items.filter(x=>x.seriesId===item.seriesId&&x.day>=item.day&&!x.done&&!x.cancelled):[item]}
+function clearCancellation(targets,cancelled){targets.forEach(x=>{x.cancelPending=false;delete x.cancelRequest;if(cancelled)x.cancelled=true});targets.forEach(x=>resolveNotif('item:'+x.title+x.day))}
+const originalOpenDetail=openDetail;
+openDetail=function(item){
+ originalOpenDetail(item);
+ if(item.cancelPending){
+ const request=item.cancelRequest,targets=request?request.targets:[item];
+ q('#detailActions').replaceChildren();
+ const box=document.createElement('div');box.className='comparison';
+ const heading=document.createElement('span');heading.className='muted';heading.textContent='İptal talebi';
+ const scope=document.createElement('p');scope.textContent=(request&&request.scope==='future'?'Bu tarih ve sonrası · ':'Yalnızca bu tarih · ')+rangeSummary(targets);scope.hidden=targets.length<2;
+ const hint=document.createElement('p');hint.className='note';hint.textContent='Yanıt gelene kadar mevcut plan geçerli.';
+ const noteText=(request&&request.note)||item.cancelNote||'';if(noteText){const nn=document.createElement('p');nn.className='reqNoteView';nn.textContent='Değişiklik notu: '+noteText;box.append(heading,scope,nn,hint)}else box.append(heading,scope,hint);q('#detailActions').append(box);
+ if(request&&request.sender==='me'){
+ const status=document.createElement('p');status.className='status';status.textContent='Diğer ebeveynin yanıtı bekleniyor';
+ const withdraw=document.createElement('button');withdraw.type='button';withdraw.id='withdrawCancel';withdraw.className='outline';withdraw.textContent='Talebi geri çek';
+ withdraw.onclick=()=>{clearCancellation(targets,false);render();openDetail(item);q('#detailResult').textContent='Talep geri çekildi.'};q('#detailActions').append(status,withdraw);
+ }else{
+ const row=document.createElement('div');row.className='row';
+ ['Uygun','Uygun değil'].forEach((label,i)=>{const button=document.createElement('button');button.type='button';button.id=i?'cancelNo':'cancelYes';button.textContent=label;button.onclick=()=>{clearCancellation(targets,i===0);render();if(i===0)show('home');else{openDetail(item);q('#detailResult').textContent='Mevcut görev korundu.'}};row.append(button)});q('#detailActions').append(row);
+ }
+ return;
+ }
+ if(item.done||item.cancelled||item.proposal)return;
+ const cancel=document.createElement('button');cancel.type='button';cancel.id='cancelTask';cancel.className='outline';cancel.textContent=item.who==='Henüz belli değil'?'Görevi iptal et':'İptal talebi';q('#detailActions').append(cancel);
+ cancel.onclick=()=>{
+ q('#detailActions').innerHTML=(item.recurring?'<label for="cancelScope">İptal kapsamı</label><select id="cancelScope"><option value="one">Yalnızca bu tarih</option><option value="future">Bu tarih ve sonrası</option></select>':'')+'<p class="note" id="cancelPrompt"></p><p class="note" id="cancelError" role="alert"></p><div class="row"><button type="button" id="abortCancel">Vazgeç</button><button type="button" class="main" id="submitCancel"></button></div>';
+ function update(){const targets=cancelTargets(item,q('#cancelScope')?.value||'one'),assigned=targets.filter(x=>x.who!=='Henüz belli değil'),free=targets.filter(x=>x.who==='Henüz belli değil');let msg;if(assigned.length&&free.length)msg=free.length+' sorumlusuz görev hemen iptal edilir. '+assigned.length+' görev için iptal talebi diğer ebeveyne iletilsin mi?';else if(assigned.length)msg=(assigned.length>1?rangeSummary(assigned)+' · ':'')+'İptal talebi';else msg=free.length===1?'Görev iptal edilsin mi?':rangeSummary(free)+' · Seçilen görevler iptal edilsin mi?';q('#cancelPrompt').textContent=msg;q('#submitCancel').textContent=assigned.length&&free.length?'İptal et ve talebi ilet':assigned.length?'Talebi ilet':'Görevi iptal et';rn.wrap.hidden=!assigned.length;rn.sync()}
+ const rn=attachNote(q('#cancelError'),q('#submitCancel'),'Okul bugün tatilmiş, artık gerek kalmadı.');update();if(q('#cancelScope'))q('#cancelScope').onchange=update;q('#abortCancel').onclick=()=>openDetail(item);
+ q('#submitCancel').onclick=()=>{const scope=q('#cancelScope')?.value||'one',targets=cancelTargets(item,scope);if(targets.some(x=>x.proposal||x.cancelPending)){q('#cancelError').textContent='Seçilen tarihlerde bekleyen bir talep var. Önce mevcut talep yanıtlanmalı veya geri çekilmelidir.';return}const assigned=targets.filter(x=>x.who!=='Henüz belli değil'),free=targets.filter(x=>x.who==='Henüz belli değil');if(assigned.length&&rn.value()===null)return;if(free.length)clearCancellation(free,true);if(assigned.length){const request={sender:'me',scope,targets:assigned,note:rn.value()||''};assigned.forEach(x=>{x.cancelPending=true;x.cancelRequest=request});render();if(item.cancelled)show('home');else openDetail(item)}else{show('home');render()}};
+ };
+};
+
+q('#dback').onclick=()=>{if(backTo==='pending'&&(groupWaiting().length||sampleReplyPending)){render();q('#pendingBtn').onclick();return}if(backTo==='unassigned'&&ownerlessTasks().length){render();q('#unassignedBtn').onclick();return}backTo='home';show('home');render()};q('#withdraw').onclick=()=>{if(current.proposal&&current.proposal.isNew){const rid=current.proposal.requestId;for(let i=items.length-1;i>=0;i--){const x=items[i];if(x===current||(rid&&x.proposal&&x.proposal.isNew&&x.proposal.requestId===rid))items.splice(i,1)}backTo='home';show('home');render();flash('Görev geri çekildi.');return}const requestId=current.proposal?.requestId;let n=1;if(requestId){const g=items.filter(x=>x.proposal?.requestId===requestId);n=g.length;g.forEach(x=>delete x.proposal)}else delete current.proposal;render();openDetail(current);q('#detailResult').textContent=n>1?n+' görev için talep geri çekildi.':'Talep geri çekildi.'};
+q('#repeat').onchange=()=>{q('#repeatFields').hidden=q('#repeat').value==='Bir kez'};
+q('#kind').onchange=()=>{const k=q('#kind').value,kal=k==='Birlikte zaman';q('#date').parentElement.querySelector('label').textContent=kal?'Başlangıç günü':'Gün';q('#time').parentElement.querySelector('label').textContent=kal?'Başlangıç saati':'Saat';q('#specific').innerHTML=kal?'<div class="row"><div><label for="endDate">Bitiş günü</label><input id="endDate" type="date"></div><div><label for="endTime">Bitiş saati</label><input id="endTime" type="time" value="18:00"></div></div>':'';endTouched=false;if(kal){if(!q('#date').value)q('#date').value=BASE.iso;syncEnd();q('#endDate').oninput=()=>{endTouched=true}}
+};function clipNote(el){const a=Array.from(el.value);if(a.length>300)el.value=a.slice(0,300).join('')}
+function attachNote(anchor,submit,sample){const id='reqNoteInput',wrap=document.createElement('div');wrap.className='reqNote';wrap.innerHTML='<div class="noteHeader"><label for="'+id+'">Değişiklik notu · İsteğe bağlı</label></div><textarea id="'+id+'" placeholder="Örn. Toplantım uzayacak."></textarea><div class="noteMeta"><p class="note">Yapay zeka tarafından düzenleniyor</p><p class="note" data-r="count">0 / 300</p></div><p class="note" data-r="proc" aria-live="polite"></p><div class="comparison" data-r="prev" hidden aria-live="polite"><strong>İletilecek not</strong><p data-r="out"></p><span class="note" data-r="outCount"></span></div><p class="note" data-r="err" role="alert"></p>';anchor.parentNode.insertBefore(wrap,anchor);const ta=wrap.querySelector('textarea'),g=k=>wrap.querySelector('[data-r='+k+']');if(window.NW_NOTEEX)ta.placeholder=window.NW_NOTEEX(typeof current!=='undefined'&&current?current.title:'',sample.indexOf('Okul bugün')===0?'cancel':'req');let timer=null,rev=0,normalized='';const sync=()=>{submit.disabled=normalized===null&&!wrap.hidden};function run(){clipNote(ta);clearTimeout(timer);const my=++rev,text=ta.value.trim();g('count').textContent=Array.from(ta.value).length+' / 300';g('err').textContent='';g('prev').hidden=true;if(!text){normalized='';g('proc').textContent='';sync();return}normalized=null;g('proc').textContent='Not düzenleniyor…';sync();timer=setTimeout(()=>{if(my!==rev||!wrap.isConnected)return;NW.svc.timeout(NW.svc.neutralize(text),15000).then(res=>{if(my!==rev||!wrap.isConnected)return;g('proc').textContent='';if(!res||!res.ok||!res.text)throw new Error('neutralize');const out=res.text;normalized=out;g('out').textContent=out;g('outCount').textContent=Array.from(out).length+' / 300';g('prev').hidden=false;sync()}).catch(()=>{if(my!==rev||!wrap.isConnected)return;g('proc').textContent='';g('err').textContent='Not şu anda düzenlenemedi. Birazdan tekrar deneyin veya notu silip devam edin.'})},(NW.noteDelay||800))}ta.oninput=run;return {wrap,sync,value:()=>normalized}}
+let endTouched=false;function plusDays(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toLocaleDateString('sv-SE')}function syncEnd(){const s=q('#date').value;if(s&&q('#endDate')&&!endTouched)q('#endDate').value=plusDays(s,1)}q('#date').addEventListener('input',syncEnd);q('#date').addEventListener('change',syncEnd);let noteTimer=null,noteVersion=0,noteSource=null,neutralNote='';const noteCache=new Map();function noteChanged(){clipNote(q('#taskNote'));clearTimeout(noteTimer);const version=++noteVersion,text=q('#taskNote').value.trim();noteSource=null;neutralNote='';q('#taskNotePreview').hidden=true;q('#taskNoteCount').textContent=Array.from(q('#taskNote').value).length+' / 300';q('#taskNoteError').textContent='';q('#noteProcessing').textContent=text?'Not düzenleniyor…':'';q('#save').disabled=!!text;if(!text)return;noteTimer=setTimeout(()=>{if(version!==noteVersion)return;const cached=noteCache.get(text);(cached?Promise.resolve({ok:true,text:cached}):NW.svc.timeout(NW.svc.neutralize(text),15000)).then(res=>{if(version!==noteVersion)return;q('#noteProcessing').textContent='';if(!res||!res.ok||!res.text)throw new Error('neutralize');const result=res.text;noteCache.set(text,result);neutralNote=result;noteSource=q('#taskNote').value;q('#taskNeutralNote').textContent=result;q('#taskNeutralCount').textContent=Array.from(result).length+' / 300';q('#taskNotePreview').hidden=false;q('#save').disabled=false}).catch(()=>{if(version!==noteVersion)return;q('#noteProcessing').textContent='';q('#taskNoteError').textContent='Not şu anda düzenlenemedi. Birazdan tekrar deneyin veya notu silip devam edin.'})},(NW.noteDelay||800))}q('#taskNote').oninput=noteChanged;const openForm=q('#add').onclick;q('#add').onclick=()=>{openForm();q('#taskNote').value='';noteChanged();0};
+
+let sampleReplyPending=false;
+function groupWaiting(){const keys=new Set();return waitingTasks().filter(x=>{const key=x.cancelRequest||x.proposal?.requestId||x.incoming||x;if(keys.has(key))return false;keys.add(key);return true})}function waitingTasks(){return items.filter(x=>!x.done&&!x.cancelled&&(x.proposal||x.cancelPending||x.incoming))}
+function ownerlessTasks(){return items.filter(x=>!x.done&&!x.cancelled&&!x.proposal&&!x.cancelPending&&!x.incoming&&x.who==='Henüz belli değil')}
+function groupOwnerless(){const seen=new Set();return ownerlessTasks().filter(x=>{const k=x.seriesId||x;if(seen.has(k))return false;seen.add(k);return true})}
+function updateWaitingSections(){const pending=groupWaiting().length+(sampleReplyPending?1:0),unassigned=groupOwnerless().length;q('#pendingBtn').hidden=pending===0;q('#pendingBtn').innerHTML='<span class="qn">'+pending+'</span><span class="ql">Yanıt bekleyenler</span>';q('#unassignedBtn').hidden=unassigned===0;q('#unassignedBtn').innerHTML='<span class="qn">'+unassigned+'</span><span class="ql">Sorumluluk bekleyenler</span>'}
+const originalRender=render;render=function(){originalRender();updateWaitingSections()};{const _od=openDetail;openDetail=function(item){_od(item);const kal=item.title==='Birlikte zaman';q('#lblDay').textContent=kal?'Başlangıç günü':'Gün';q('#lblTime').textContent=kal?'Başlangıç saati':'Saat'}}
+const originalFinishReply=finishReply;finishReply=function(){sampleReplyPending=false;originalFinishReply();updateWaitingSections()};
+const samplePanel=document.createElement('div');samplePanel.id='sampleReplyPanel';const pendingSection=q('#pending');Array.from(pendingSection.children).slice(1).forEach(node=>samplePanel.append(node));pendingSection.append(samplePanel);const pendingQueue=document.createElement('div');pendingQueue.id='pendingQueue';pendingSection.insertBefore(pendingQueue,samplePanel);
+function queueButton(item,from){const button=document.createElement('button');button.type='button';button.className='outline queueItem';const grp=item.cancelRequest?item.cancelRequest.targets:item.incoming?item.incoming.targets:(item.proposal&&item.proposal.requestId?items.filter(y=>y.proposal&&y.proposal.requestId===item.proposal.requestId&&!y.done&&!y.cancelled):(!item.cancelPending&&!item.proposal&&item.seriesId?ownerlessTasks().filter(y=>y.seriesId===item.seriesId):[item])),sorted=[...grp].sort((a,b)=>a.day-b.day),d=x=>new Date(BASE.y,BASE.m,BASE.d+x.day).toLocaleDateString('tr-TR'),state=item.cancelPending?(item.cancelRequest?.sender==='me'?'Diğer ebeveynin yanıtı bekleniyor':'Yanıtınız bekleniyor'):item.incoming?'Yanıtınız bekleniyor':item.proposal?(item.proposal.isNew?'Diğer ebeveynin yanıtı bekleniyor':'Diğer ebeveynin yanıtı bekleniyor'):'Sorumlu bekliyor';const mk=(t,c)=>{const e=document.createElement('span');e.className=c;e.textContent=t;return e},head=mk('','qh');head.append(mk(item.title,'qtitle'));if(sorted.length>1)head.append(mk(sorted.length+' görev','qcount'));button.append(head,mk(childLabel(item)+' · '+d(sorted[0])+(sorted.length>1?' – '+d(sorted.at(-1)):''),'qmeta'),mk('Sorumlu: '+(item.proposal&&item.proposal.who?(item.who==='Henüz belli değil'||item.who===item.proposal.who?item.proposal.who:item.who+' → '+item.proposal.who):item.who),'qwho'),mk(state,'status '+(state==='Sorumlu bekliyor'?'o-none':'s-wait')));button.setAttribute('aria-label',(sorted.length>1?sorted.length+' görev · ':'')+item.title+' · '+childLabel(item)+' · Sorumlu: '+(item.proposal&&item.proposal.who?item.proposal.who:item.who)+' · '+state);button.onclick=()=>{backTo=from||'home';openDetail(item)};return button}
+q('#pendingBtn').onclick=()=>{show('pending');samplePanel.hidden=true;pendingQueue.replaceChildren();if(sampleReplyPending){const button=document.createElement('button');button.type='button';button.className='outline queueItem';[['Okula bırakma','qtitle'],[(childNames[0]||'Çocuk')+' · Tekrarlanan görev','qmeta'],['Sorumlu: Siz','qwho'],['Yanıtınız bekleniyor','status s-wait']].forEach(([t,c])=>{const e=document.createElement('span');e.className=c;e.textContent=t;button.append(e)});button.setAttribute('aria-label','Okula bırakma · '+(childNames[0]||'Çocuk')+' · Tekrarlanan görev · Yanıtınız bekleniyor');button.onclick=()=>{pendingQueue.hidden=true;samplePanel.hidden=false};pendingQueue.append(button)}pendingQueue.append(...groupWaiting().map(i=>queueButton(i,'pending')));pendingQueue.hidden=false};
+const ownerlessPanel=document.createElement('div');ownerlessPanel.id='ownerlessQueue';q('#unassigned').append(ownerlessPanel);q('#unassignedBtn').onclick=()=>{show('unassigned');Array.from(q('#unassigned').children).forEach(node=>{if(node.tagName!=='HEADER'&&node!==ownerlessPanel)node.hidden=true});ownerlessPanel.replaceChildren(...groupOwnerless().map(i=>queueButton(i,'unassigned')));ownerlessPanel.hidden=false};
+
+
+function readSpecific(){const get=id=>q('#'+id)?.value||'';return {type:get('item'),size:get('size'),endDate:get('endDate'),endTime:get('endTime')}}
+function rangeSummary(targets){const sorted=[...targets].sort((a,b)=>a.day-b.day),fmt=x=>new Date(BASE.y,BASE.m,BASE.d+x.day).toLocaleDateString('tr-TR',{day:'numeric',month:'long'});return fmt(sorted[0])+(sorted.length>1?' – '+fmt(sorted.at(-1)):'')+' · '+sorted.length+' görev'}
+completionAllowed=function(item){return !['Okuldan alma','Okula bırakma','Kursa bırakma','Kurstan alma','Etkinliğe götürme','Birlikte zaman'].includes(item.title)||Date.now()>=+taskDate(item,true)};
+const detailWithCancel=openDetail;openDetail=function(item){detailWithCancel(item);q('#detailExtras')?.remove();const extra=document.createElement('div');extra.id='detailExtras';const values=[['Tür',item.extra?.type],['Numara / beden',item.extra?.size],['Bitiş',item.extra?.endDate?new Date(item.extra.endDate+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})+' · '+String(item.extra.endTime).replace(':','.'):'']];values.filter(x=>x[1]).forEach(([key,value])=>{const row=document.createElement('div');row.className='detail-line';const label=document.createElement('span'),v=document.createElement('span');label.textContent=key;v.textContent=value;row.append(label,v);extra.append(row)});q('#detailNoteLine').before(extra)};
+const excludedDates=new Set();function resetOverrides(){excludedDates.clear();dayOverrides.clear();drawExceptions();drawDateOverrides();choice.value='0'}function drawExceptions(){q('#exceptions').replaceChildren(...[...excludedDates].sort().map(date=>{const b=document.createElement('button');b.type='button';b.textContent=date.split('-').reverse().join('.')+' · Kaldır';b.onclick=()=>{excludedDates.delete(date);drawExceptions()};return b}))}
+q('#excludeDate').onclick=()=>{const value=q('#exceptionDate').value,date=new Date(value+'T12:00:00');if(!value||value<'2026-10-12'||value>'2026-11-30'||![1,3,5].includes(date.getDay())){drawExceptions();const p=document.createElement('p');p.setAttribute('role','alert');p.textContent='Bu görev için geçerli bir tarih seçiniz.';q('#exceptions').append(p);return}excludedDates.add(value);drawExceptions()};
+showReplyResults=function(chosen){q('#replyResults').replaceChildren(...['Pazartesi','Çarşamba','Cuma'].map(day=>{const row=document.createElement('p');row.textContent=day+' · '+(chosen.includes(day)?'Uygun':'Uygun değil');return row}));[...excludedDates].sort().forEach(date=>{const p=document.createElement('p');p.textContent=date.split('-').reverse().join('.')+' · Uygun değil';q('#replyResults').append(p)})};
+const replyInfo=q('#sampleReplyPanel .muted');document.getElementById('nw').addEventListener('noword-enter',()=>{if(replyInfo)replyInfo.textContent=(childNames[0]||'Çocuk')+' · 12 Ekim–30 Kasım'});
+// Restore draft on returning, and start with clean fields after saving.
+let formDraft=null;const controls=()=>Array.from(q('#form').querySelectorAll('input,select,textarea'));function captureDraft(){return controls().filter(e=>e.id||e.type==='checkbox').map((e,i)=>({id:e.id,index:i,value:e.value,checked:e.checked}))}
+function restoreDraft(draft){draft.forEach(x=>{const e=x.id?q('#'+x.id):controls().filter(e=>e.id||e.type==='checkbox')[x.index];if(e){e.value=x.value;e.checked=x.checked;if(e.id==='kind'||e.id==='repeat'||e.id==='who')e.dispatchEvent(new Event('change'));if(e.id==='endDate')endTouched=true}});noteChanged()}
+function resetForm(){q('#kind').value='Okula bırakma';q('#kind').onchange();q('#child').value='0';q('#time').value='15:30';q('#repeat').value='Bir kez';q('#repeat').onchange();q('#until').value=new Date(BASE.y,BASE.m,BASE.d+offset+90).toLocaleDateString('sv-SE');q('#repeatFields').querySelectorAll('input[type=checkbox]').forEach(e=>e.checked=false);q('#who').value='me';q('#who').onchange();q('#taskNote').value='';q('#formError')?.remove();noteChanged()}
+q('#back').onclick=()=>{formDraft=captureDraft();show('home')};q('#add').onclick=()=>{if(formDraft){show('form');restoreDraft(formDraft)}else{resetForm();const date=new Date(BASE.y,BASE.m,BASE.d+offset);q('#date').value=date.toLocaleDateString('sv-SE');show('form')}0};const saveForm=q('#save').onclick;q('#save').onclick=()=>{saveForm();if(q('#form').hidden){formDraft=null;resetForm()}};
+// Specific dates can override weekday choices without changing every occurrence.
+const dayOverrides=new Map(),dateChoices=document.createElement('div');dateChoices.id='dateChoices';q('#sendDays').before(dateChoices);const heading=document.createElement('label');heading.textContent='Tarihe göre seçim';const dateSelect=document.createElement('select');dateSelect.id='replyDate';for(let day=3;day<=52;day++){const date=new Date(BASE.y,BASE.m,BASE.d+day);if(![1,3,5].includes(date.getDay()))continue;const option=document.createElement('option');option.value=date.toLocaleDateString('sv-SE');option.textContent=date.toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'});dateSelect.append(option)}const choice=document.createElement('select');choice.id='replyDateChoice';['Hafta günü seçimi','Uygun','Uygun değil'].forEach((text,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=text;choice.append(o)});const dateSummary=document.createElement('div');dateSummary.id='dateOverrideSummary';function drawDateOverrides(){dateSummary.replaceChildren(...[...dayOverrides].sort().map(([date,value])=>{const button=document.createElement('button');button.type='button';button.textContent=date.split('-').reverse().join('.')+' · '+(value===1?'Uygun':'Uygun değil')+' · Kaldır';button.onclick=()=>{dayOverrides.delete(date);drawDateOverrides();dateSelect.onchange()};return button}))}dateChoices.append(heading,dateSelect,choice,dateSummary);dateSelect.onchange=()=>choice.value=String(dayOverrides.get(dateSelect.value)||0);choice.onchange=()=>{if(choice.value==='0')dayOverrides.delete(dateSelect.value);else dayOverrides.set(dateSelect.value,Number(choice.value));drawDateOverrides()};
+const originalSampleReply=applySampleReply;applySampleReply=function(chosen){originalSampleReply(chosen);items.filter(x=>x.seriesId==='sample-school-series').forEach(item=>{const key=new Date(BASE.y,BASE.m,BASE.d+item.day).toLocaleDateString('sv-SE'),value=dayOverrides.get(key);if(value&&!excludedDates.has(key)){item.mine=value===1;item.who=item.mine?'Siz':'Henüz belli değil'}});render()};const originalResults=showReplyResults;showReplyResults=function(chosen){originalResults(chosen);dayOverrides.forEach((value,date)=>{if(excludedDates.has(date))return;const p=document.createElement('p');p.textContent=date.split('-').reverse().join('.')+' · '+(value===1?'Uygun':'Uygun değil');q('#replyResults').append(p)})};
+
+
+function timeOrder(time){const parts=time.split(/[.:]/).map(Number);return Number.isFinite(parts[0])?parts[0]*60+(parts[1]||0):1440}
+function occurrenceSpecific(date,start){const extra=readSpecific();if(extra.endDate){const shift=Math.round((date-start)/86400000),end=new Date(extra.endDate+'T12:00:00');end.setDate(end.getDate()+shift);extra.endDate=end.toLocaleDateString('sv-SE')}return extra}
+const finishToResult=finishReply;finishReply=function(){finishToResult();const comparison=q('#sampleReplyPanel .comparison');if(comparison)comparison.hidden=true;q('#sampleReplyPanel h3').textContent='Okula bırakma · Yanıt iletildi'};
+function extraForKind(kind,extra={}){if(kind==='Birlikte zaman')return '<div class="row"><div><label for="editEndDate">Bitiş günü</label><input id="editEndDate" type="date"></div><div><label for="editEndTime">Bitiş saati</label><input id="editEndTime" type="time"></div></div>';return ''}
+const detailBeforeExtendedEdit=openDetail;openDetail=function(item){detailBeforeExtendedEdit(item);const edit=q('#editTask');if(!edit)return;const begin=edit.onclick;edit.onclick=()=>{begin();if(!Array.from(q('#editKind').options).some(o=>o.value===item.title)){const option=document.createElement('option');option.textContent=item.title;q('#editKind').append(option);q('#editKind').value=item.title}const specific=document.createElement('div');specific.id='editSpecific';q('#editError').before(specific);function draw(){specific.innerHTML=extraForKind(q('#editKind').value);if(q('#editKind').value===item.title){if(q('#editType')&&item.extra?.type)q('#editType').value=item.extra.type;if(q('#editSize')&&item.extra?.size)q('#editSize').value=item.extra.size}if(q('#editEndDate')){q('#editEndDate').value=q('#editKind').value===item.title&&item.extra?.endDate?item.extra.endDate:q('#editDay').value;q('#editEndTime').value=item.extra?.endTime||'18:00'}}draw();q('#editKind').onchange=draw;
+ const note=document.createElement('div');note.innerHTML='<label for="editNoteInput">Görev notu</label><textarea id="editNoteInput"></textarea><p class="note">Yapay zeka tarafından düzenleniyor</p><div class="comparison"><strong>İletilecek not</strong><p id="editNeutralNote"></p></div><p id="editNoteError" class="note" role="alert"></p>';q('#editError').before(note);q('#editNoteInput').value=item.note||'';const noteInput=q('#editNoteInput');let normalized=item.note||'',noteTimer=null,noteRevision=0;q('#editNeutralNote').textContent=normalized;q('#editNoteInput').oninput=()=>{clipNote(q('#editNoteInput'));clearTimeout(noteTimer);const revision=++noteRevision,text=q('#editNoteInput').value.trim();normalized=null;q('#saveTime').disabled=!!text;q('#editNeutralNote').textContent=text?'Not düzenleniyor…':'';q('#editNoteError').textContent='';if(!text){normalized='';return}noteTimer=setTimeout(()=>{if(revision!==noteRevision||q('#editNoteInput')!==noteInput)return;(text===item.note?Promise.resolve({ok:true,text:item.note}):NW.svc.timeout(NW.svc.neutralize(text),15000)).then(res=>{if(revision!==noteRevision||q('#editNoteInput')!==noteInput)return;if(!res||!res.ok||!res.text)throw new Error('neutralize');const output=res.text;normalized=output;q('#editNeutralNote').textContent=output;q('#saveTime').disabled=false}).catch(()=>{if(revision!==noteRevision||q('#editNoteInput')!==noteInput)return;q('#editNeutralNote').textContent='';q('#editNoteError').textContent='Not şu anda düzenlenemedi. Birazdan tekrar deneyin veya notu silip devam edin.'})},(NW.noteDelay||800))};
+ q('#saveTime').onclick=()=>{if(normalized===null)return;const kind=q('#editKind').value,day=Math.round((new Date(q('#editDay').value+'T12:00:00')-new Date(BASE.iso+'T12:00:00'))/86400000),time=q('#editTime').value.replace(':','.')||(/\d/.test(item.time)?'':item.time),childId=Number(q('#editChild').value),extra={type:q('#editType')?.value||'',size:q('#editSize')?.value||'',endDate:q('#editEndDate')?.value||'',endTime:q('#editEndTime')?.value||''};if(!kind||!Number.isFinite(day)||!time){q('#editError').textContent='Gün ve saat seçiniz.';return}if(kind==='Birlikte zaman'&&(!extra.endDate||!extra.endTime||new Date(extra.endDate+'T'+extra.endTime)<=new Date(q('#editDay').value+'T'+q('#editTime').value))){q('#editError').textContent='Bitiş günü ve saati başlangıçtan sonra olmalıdır.';return}const changes={};if(kind!==item.title)changes.title=kind;if(day!==item.day)changes.day=day;if(time!==item.time)changes.time=time;if(childId!==(item.childId??0))changes.childId=childId;if(q('#editWho')&&q('#editWho').value!==item.proposal.who)changes.who=q('#editWho').value;if(['type','size','endDate','endTime'].some(key=>(extra[key]||'')!==(item.extra?.[key]||'')))changes.extra=extra;if(normalized!==(item.note||''))changes.note=normalized;if(!Object.keys(changes).length){openDetail(item);return}const assigned=item.who!=='Henüz belli değil',needsReply=!(item.proposal&&item.proposal.isNew)&&((!item.mine&&assigned)||'title'in changes||'childId'in changes||('note'in changes)||(assigned&&'extra'in changes)||(['Okuldan alma','Okula bırakma','Kursa bırakma','Kurstan alma','Etkinliğe götürme','Birlikte zaman'].includes(item.title)&&('day'in changes||'time'in changes)));if(needsReply){q('#detailActions').innerHTML='<p class="note" id="editConfirm"></p><button type="button" class="main full" id="sendEdit">Değişikliği ilet</button><button type="button" class="outline" id="cancelSendEdit">Vazgeç</button>';q('#editConfirm').textContent='Değişiklik: '+changeNames(changes);q('#cancelSendEdit').onclick=()=>openDetail(item);{const rn=attachNote(q('#sendEdit'),q('#sendEdit'),'Saati değiştirmem lazım, o gün erken çıkacağım.');q('#sendEdit').onclick=()=>{if(rn.value()===null)return;item.proposal=changes;if(rn.value())item.proposal.requestNote=rn.value();openDetail(item);render()}}}else{const nw=item.proposal&&item.proposal.isNew;if(nw&&changes.who!==undefined){item.proposal.who=changes.who;delete changes.who}Object.assign(item,changes);if(nw)item.proposal.rev=(item.proposal.rev||0)+1;openDetail(item);render();if(nw)q('#detailResult').textContent='Güncel hâli diğer ebeveynin yanıtına sunuldu.'}};
+ };
+};
+
+// ---- Bildirimler, ayarlar, yasal metinler, bağlantı kesme ----
+const flash=m=>{const t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(window.__tt);window.__tt=setTimeout(()=>{t.hidden=true},3500)};
+let notifs=[],notifId=0,notifShown=[],notifSeeded=false,userEmail='',legalBack='settingsPage';
+const prefs=Object.assign({done:true,reminder:true,info:true,lead:'1 saat'},NW.store.read('prefs',{}));if(!['15 dakika','30 dakika','1 saat','2 saat'].includes(prefs.lead))prefs.lead='1 saat';function savePrefs(){NW.store.write('prefs',{done:!!prefs.done,reminder:!!prefs.reminder,info:!!prefs.info,lead:prefs.lead})}
+const bellSvg='<svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>';
+const gearSvg='<svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+{const h=q('#home>header');const g=document.createElement('div');g.className='hbtns';g.innerHTML='<button type="button" class="iconbtn" id="bellBtn" aria-label="Bildirimler">'+bellSvg+'<span class="badge" id="bellBadge" hidden>0</span></button><button type="button" class="iconbtn" id="settingsBtn" aria-label="Ayarlar">'+gearSvg+'</button>';h.append(g)}
+function unreadCount(){return notifs.filter(n=>!n.read).length}
+function updateBell(){const n=unreadCount(),b=q('#bellBadge');b.hidden=!n;b.textContent=String(n);q('#bellBtn').setAttribute('aria-label',n?'Bildirimler, '+n+' okunmamış':'Bildirimler')}
+function addNotif(type,title,body,opts={}){if((type==='done'&&!prefs.done)||(type==='reminder'&&!prefs.reminder)||(type==='info'&&!prefs.info))return false;notifs.unshift({id:++notifId,type,title,body,when:opts.when||'Şimdi',read:!!opts.read,key:opts.key||null,target:opts.target||null,item:opts.item||null,state:''});updateBell();return true}
+function resolveNotif(key,label){notifs.forEach(n=>{if(n.key===key&&!n.state){n.state=label||'Yanıtlandı';n.read=true}});updateBell()}
+function renderNotifs(){const list=q('#notifList');list.replaceChildren();const fresh=notifs.filter(n=>!n.read),old=notifs.filter(n=>n.read);notifShown=fresh.map(n=>n.id);
+ const mk=(n,unread)=>{const b=document.createElement('button');b.type='button';b.className='notif'+(unread?' unread':'');b.dataset.id=String(n.id);const dot=document.createElement('span');dot.className='nd';const body=document.createElement('span');body.className='nb';const t=document.createElement('b');t.textContent=n.title;const d=document.createElement('span');d.textContent=n.body;const w=document.createElement('small');w.textContent=n.when+(n.state?' · '+n.state:'');body.append(t,d,w);b.append(dot,body);b.onclick=()=>openNotif(n);return b};
+ const sec=(title,arr,unread,extra)=>{const h=document.createElement('div');h.className='nhead';const s=document.createElement('h4');s.textContent=title;h.append(s);if(extra)h.append(extra);list.append(h);arr.forEach(n=>list.append(mk(n,unread)))};
+ if(!notifs.length){const e=document.createElement('p');e.className='empty';e.textContent='Bildirim yok.';list.append(e);return}
+ if(fresh.length){const all=document.createElement('button');all.type='button';all.className='linkbtn';all.id='markAll';all.textContent='Tümünü okundu say';all.onclick=()=>{fresh.forEach(n=>n.read=true);updateBell();renderNotifs()};sec('Yeni · '+fresh.length,fresh,true,all)}else{const e=document.createElement('p');e.className='empty';e.textContent='Yeni bildirim yok.';list.append(e)}
+ if(old.length)sec('Okunanlar · son 30 gün',old,false)}
+function openNotifs(){renderNotifs();show('notifs')}
+function openNotif(n){n.read=true;updateBell();if(n.target==='pending'){q('#pendingBtn').click()}else if(n.target==='unassigned'){q('#unassignedBtn').click()}else if(n.item){backTo='home';openDetail(n.item)}else{renderNotifs()}}
+{const _show=show;show=function(id){const was=!q('#notifs').hidden;_show(id);if(was&&id!=='notifs'){notifs.forEach(n=>{if(notifShown.includes(n.id))n.read=true});notifShown=[];updateBell()}}}
+q('#bellBtn').onclick=openNotifs;q('#nBack').onclick=()=>{show('home');render()};
+// Çözülen talepler bildirimi "Yanıtlandı" yapar
+{const _fr=finishReply;finishReply=function(){_fr.apply(this,arguments);resolveNotif('sampleReply')}}
+// Ayarlar
+function pairText(){return(q('#pairState')?.textContent)||'Diğer ebeveyn henüz katılmadı'}
+function isPaired(){return pairText()==='Bağlantı sağlandı'}
+function refreshSettings(){q('#setEmail').textContent=userEmail||'—';q('#pfDone').checked=!!prefs.done;q('#pfInfo').checked=!!prefs.info;q('#pfRem').checked=!!prefs.reminder;q('#pfLead').value=prefs.lead;q('#appVer').textContent=NW.version+(NW.svc.provider==='live'?'':NW.svc.provider==='test'?' · test':' · önizleme');const sm=NW.config.supportEmail;q('#supportRow').hidden=!sm;q('#supportMail').textContent=sm||'';q('#setPair').textContent=(t=>{const m=t.replace(/^Diğer ebeveyn /,'');return m===t?t:NW.fmt.upperFirst(m)})(pairText());q('#reinviteBtn').textContent=/kes/.test(pairText())?'Yeni davet gönder':/katılmadı|^Davet gönderildi/.test(pairText())?'Daveti yeniden gönder':'Diğer ebeveyni davet et';q('#unpairBtn').hidden=!isPaired();q('#reinviteBtn').hidden=isPaired();q('#unpairConfirm').hidden=true;q('#deleteConfirm').hidden=true;q('#pfLeadRow').hidden=!prefs.reminder}
+q('#settingsBtn').onclick=()=>{refreshSettings();show('settingsPage')};q('#sBack').onclick=()=>{show('home');render()};
+q('#pfDone').onchange=e=>{prefs.done=e.target.checked;savePrefs()};q('#pfInfo').onchange=e=>{prefs.info=e.target.checked;savePrefs()};q('#pfRem').onchange=e=>{prefs.reminder=e.target.checked;q('#pfLeadRow').hidden=!prefs.reminder;savePrefs()};q('#pfLead').onchange=e=>{prefs.lead=e.target.value;savePrefs()};
+q('#logout').onclick=()=>{NW.svc.signOut().then(()=>location.reload())};
+q('#reinviteBtn').onclick=()=>{r.hidden=true;const no=document.getElementById('no');no.hidden=false;no.dispatchEvent(new CustomEvent('noword-invite'))};
+q('#exportData').onclick=()=>{const b=q('#exportData');b.disabled=true;NW.svc.timeout(NW.svc.requestExport()).then(r=>{if(!r||!r.ok)throw new Error('export');flash('Talebiniz alındı. Verileriniz e-posta adresinize gönderilecek.')}).catch(()=>flash('Talep gönderilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.')).then(()=>{b.disabled=false})};
+q('#deleteAcc').onclick=()=>{q('#deleteConfirm').hidden=false;q('#deleteConfirm').scrollIntoView({block:'nearest'})};q('#deleteNo').onclick=()=>{q('#deleteConfirm').hidden=true};q('#deleteYes').onclick=()=>{const b=q('#deleteYes');b.disabled=true;NW.svc.timeout(NW.svc.deleteAccount()).then(r=>{if(!r||!r.ok)throw new Error('delete');NW.store.clear();location.reload()}).catch(()=>{b.disabled=false;flash('Hesap silinemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.')})};
+q('#unpairBtn').onclick=()=>{q('#unpairConfirm').hidden=false;q('#unpairConfirm').scrollIntoView({block:'nearest'})};q('#unpairNo').onclick=()=>{q('#unpairConfirm').hidden=true};
+function unpair(who){let n=0;items.forEach(x=>{if(x.cancelled)return;if(!x.done){if(x.proposal||x.cancelPending){delete x.proposal;x.cancelPending=false;delete x.cancelRequest;delete x.cancelNote}const own=(who==='me'&&x.who==='Siz')||(who==='other'&&x.who==='Diğer ebeveyn');if(own){x.who='Henüz belli değil';x.mine=false;n++}}else if(who==='other'&&x.who==='Diğer ebeveyn')x.who='Eski ebeveyn'});sampleReplyPending=false;notifs.forEach(nf=>{if(nf.type==='request'&&!nf.state){nf.state='Kapandı';nf.read=true}});const s=q('#pairState');if(s)s.textContent=who==='me'?'Bağlantıyı kestiniz':'Diğer ebeveyn bağlantıyı kesti';document.getElementById('no').dispatchEvent(new CustomEvent('noword-unpair'));updateBell();return n}
+q('#unpairYes').onclick=()=>{const n=unpair('me');refreshSettings();flash(n?'Bağlantı kesildi. '+n+' görev sorumlu bekliyor.':'Bağlantı kesildi.')};
+// Yasal metinler
+function openLegal(kind,back){const d=window.NW_LEGAL[kind];legalBack=back||'settingsPage';q('#legalTitle').textContent=d.title;q('#legalNote').textContent=d.note;const body=q('#legalBody');body.replaceChildren();d.sections.forEach(([h,p])=>{const e=document.createElement('div');e.className='lsec';const t=document.createElement('h4');t.textContent=h;const x=document.createElement('p');x.textContent=p;e.append(t,x);body.append(e)});show('legalPage')}
+q('#lgPriv').onclick=()=>openLegal('priv');q('#lgTerms').onclick=()=>openLegal('terms');q('#lgPol').onclick=()=>openLegal('policy');q('#lBack').onclick=()=>{refreshSettings();show('settingsPage')};
+// Ortak yardımcılar
+function tlabel(x){return childLabel(x)+' · '+x.title+' · '+new Date(BASE.y,BASE.m,BASE.d+x.day).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})+(/\d/.test(x.time)?' '+x.time:'')}
+function applyProposal(x){const p=x.proposal;if(!p)return;Object.keys(p).forEach(k=>{if(k==='who'){x.who=p.who;x.mine=p.who==='Siz'}else if(!['requestNote','requestId','isNew','rev'].includes(k))x[k]=p[k]});delete x.proposal}
+document.getElementById('nw').addEventListener('noword-enter',e=>{userEmail=e.detail.email||userEmail});
+// Gönderim onay penceresi
+function askSend(title,text,onYes){const m=document.createElement('div');m.className='modal';m.innerHTML='<div class="mbox" role="alertdialog" aria-modal="true" aria-labelledby="mTitle"><p class="mt" id="mTitle"></p><p class="note" id="mText"></p><div class="row"><button type="button" id="modalNo">Vazgeç</button><button type="button" class="main" id="modalYes">Onayla</button></div></div>';m.querySelector('#mTitle').textContent=title;m.querySelector('#mText').textContent=text;r.append(m);const close=()=>m.remove();m.querySelector('#modalNo').onclick=close;m.querySelector('#modalYes').onclick=()=>{close();onYes()};m.addEventListener('keydown',e=>{if(e.key==='Escape')close()});m.querySelector('#modalNo').focus()}
+r.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#sendChange,#sendTake,#sendEdit,#submitCancel');if(!b||b.disabled||b.dataset.go)return;if(b.id==='submitCancel'&&!/ilet/i.test(b.textContent))return;e.preventDefault();e.stopImmediatePropagation();const t={sendEdit:'Değişiklik diğer ebeveyne iletilecek',sendChange:'Talep diğer ebeveyne iletilecek',sendTake:'Talep diğer ebeveyne iletilecek',submitCancel:'İptal talebi diğer ebeveyne iletilecek'}[b.id];askSend(t,'Yanıt gelene kadar mevcut plan korunur.',()=>{b.dataset.go='1';b.click();delete b.dataset.go})},true);
+
+// Logo: bağlantı durumu (tek daire → iki daire → parlak kesişim)
+const LENS='<path d="M16 4.76A8 8 0 0 1 16 17.24A8 8 0 0 1 16 4.76Z" fill="#f2a03d" stroke="none"/>';
+function bondState(){const t=pairText();return t==='Bağlantı sağlandı'?'paired':t==='Diğer ebeveyn henüz katılmadı'?'invited':'solo'}
+function updateBond(){const m=q('#home header .mark');if(!m)return;const st=bondState();if(m.dataset.bond===st)return;const first=!m.querySelector('.a');m.dataset.bond=st;if(first)m.innerHTML='<circle class="a" cx="11" cy="11" r="8"/><circle class="b" cx="21" cy="11" r="8"/>';m.classList.toggle('solo',st==='solo');const lens=m.querySelector('path');if(st==='paired'&&!lens)m.insertAdjacentHTML('afterbegin',LENS);if(st!=='paired'&&lens)lens.remove();m.setAttribute('role','img');m.removeAttribute('aria-hidden');m.setAttribute('aria-label',pairText())}
+new MutationObserver(updateBond).observe(q('#home'),{childList:true,subtree:true,characterData:true});updateBond();
+
+// Çocuk filtresi
+var childFilterIdx=null;
+function childOk(x){return childFilterIdx==null||(x.childId??0)===childFilterIdx}
+function drawChildFilters(){let row=q('#childFilters');if(childNames.length<2){if(row)row.hidden=true;childFilterIdx=null;return}if(!row){row=document.createElement('div');row.className='row';row.id='childFilters';q('#filters').after(row)}row.hidden=false;const sig=childNames.join('|')+'#'+childFilterIdx;if(row.dataset.sig===sig)return;row.dataset.sig=sig;row.replaceChildren(...[null,...childNames.map((_,i)=>i)].map(i=>{const b=document.createElement('button');b.type='button';b.className=i===childFilterIdx?'active':'';if(i===null)b.textContent='Tüm çocuklar';else{const k=document.createElement('span');k.className='kid';k.textContent=childNames[i];b.append(k)}b.onclick=()=>{childFilterIdx=i;render()};return b}))}
+{const _r=render;render=function(){_r();drawChildFilters()}}
+// Yumuşak uyarılar: geçmiş zaman ve çakışma (ikinci basışta kaydeder)
+var softAck='';
+function softWarn(){const d=q('#date').value,t=q('#time').value,kal=q('#kind').value==='Birlikte zaman';if(!d)return false;const key=[d,t,q('#child').value,q('#kind').value].join('|');if(softAck===key){softAck='';return false}const msgs=[];const when=new Date(d+'T'+(t||'23:59'));if(!Number.isNaN(+when)&&when<new Date())msgs.push('Seçtiğiniz tarih ve saat geçmişte.');const off=Math.round((new Date(d+'T12:00:00')-new Date(BASE.iso+'T12:00:00'))/86400000),tm=(t||'').replace(':','.'),cid=Number(q('#child').value);const dup=items.find(x=>!x.cancelled&&x.day===off&&x.time===tm&&(x.childId??0)===cid);if(dup)msgs.push(childNames[cid]+' için bu saatte “'+dup.title+'” görevi zaten var.');if(!msgs.length)return false;softAck=key;let e=q('#formError');if(!e){e=document.createElement('p');e.id='formError';e.className='note';e.setAttribute('role','alert');q('#save').before(e)}e.textContent=msgs.join(' ')+' Yine de kaydetmek için tekrar “Görevi kaydet”e basın.';return true}
+
+// Gün değişimi: uygulama arka planda geceyi geçirirse "bugün" ve görev günleri kayar
+function rollover(){const n=new Date(),iso=NW.fmt.iso(n);if(iso===BASE.iso)return false;const delta=Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(BASE.y,BASE.m,BASE.d))/86400000);if(!delta)return false;BASE.y=n.getFullYear();BASE.m=n.getMonth();BASE.d=n.getDate();BASE.iso=iso;items.forEach(x=>{x.day-=delta});offset=0;return true}
+// Android geri tuşu: Capacitor sarmalayıcı App 'backButton' olayında NW.handleBack() çağırır; false dönerse uygulamadan çıkılır.
+NW.handleBack=function(){const no=document.getElementById('no');
+ if(!r.hidden){const m=q('.modal');if(m){const b=m.querySelector('#modalNo');if(b)b.click();else m.remove();return true}
+  const map={form:'#back',detail:'#dback',notifs:'#nBack',settingsPage:'#sBack',legalPage:'#lBack',pending:'#pback',history:'#historyBack',unassigned:'#uback'};
+  for(const id in map){const s=q('#'+id);if(s&&!s.hidden){const b=q(map[id]);if(b){b.click();return true}}}
+  return false}
+ if(no&&!no.hidden){const b=no.querySelector('#legalBack,#loginBack,#codeBack,#childBack,#inviteBack');if(b){b.click();return true}}
+ return false};
+// Ekran klavyesi açılınca odaktaki alan görünür kalsın
+document.addEventListener('focusin',e=>{const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)&&t.type!=='checkbox'){setTimeout(()=>{try{if(document.activeElement===t)t.scrollIntoView({block:'center'})}catch(_){}},300)}});
+
+// ---- Ana ekranda davet düğmesi ----
+function syncInviteBtn(){const ps=q('#pairState');if(!ps)return;let b=q('#homeInvite');if(isPaired()){if(b)b.remove();return}const inv=/katılmadı|^Davet gönderildi/.test(pairText());if(!b){b=document.createElement('button');b.type='button';b.id='homeInvite';b.className='linkbtn';b.onclick=()=>q('#reinviteBtn').click()}if(b.previousElementSibling!==ps)ps.after(b);const t=inv?'Daveti yeniden gönder':'Davet gönder';if(b.textContent!==t)b.textContent=t}
+new MutationObserver(syncInviteBtn).observe(q('#home'),{childList:true,subtree:true,characterData:true});syncInviteBtn();
+// ---- Sayfa açılınca en üste ----
+{const _s2=show;show=function(id){_s2(id);if(id==='legalPage'||id==='settingsPage'||id==='notifs'){const up=()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;const e=q('#'+id);if(e)e.scrollTop=0};up();requestAnimationFrame(up);setTimeout(up,60)}}}
+// ---- Not ipucu cümleleri (görev türüne göre) ----
+const NOTEEX={
+ 'Okuldan alma':{add:'Örn. Çocuk öğretmenden teslim alınacak, mavi çantası yanında.',req:'Örn. Toplantım uzayacak, bu sefer alabilir misin?',cancel:'Örn. Çocuk bugün serviste gelecek, almaya gerek yok.'},
+ 'Okula bırakma':{add:'Örn. Spor çantası da yanında olsun.',req:'Örn. Yarın erken toplantım var, bırakabilir misin?',cancel:'Örn. Okul bugün tatil, bırakmaya gerek kalmadı.'},
+ 'Birlikte zaman':{add:'Örn. Hafta sonu bende kalacak, pazar akşamı teslim.',req:'Örn. Hafta sonu planım değişti, günleri değiştirebilir miyiz?',cancel:'Örn. Plan değişti, bu gece kalma olmayacak.'},
+ 'Alışveriş':{add:'Örn. 31 numara, siyah okul ayakkabısı.',req:'Örn. Bu hafta ben bakamayacağım, alabilir misin?',cancel:'Örn. Ayakkabı alındı, artık gerek yok.'},
+ 'Kıyafet ihtiyacı':{add:'Örn. Yağmurluk ve yedek çorap lazım.',req:'Örn. Bu hafta ben bakamayacağım, alabilir misin?',cancel:'Örn. Kıyafet başka yerden sağlandı, gerek kalmadı.'},
+ 'Okul için hazırlık':{add:'Örn. Resim dersi için önlük ve boya takımı.',req:'Örn. Bu hafta yetişemeyeceğim, hazırlayabilir misin?',cancel:'Örn. Etkinlik iptal oldu, hazırlık gerekmiyor.'}};
+window.NW_NOTEEX=(kind,ctx)=>((NOTEEX[kind]||{})[ctx])||({add:'Örn. Eklemek istediğiniz kısa bir bilgi.',req:'Örn. Bu sefer ben yapamayacağım, sen yapabilir misin?',cancel:'Örn. Plan değişti, artık gerek kalmadı.'})[ctx];
+function mainNotePh(){const t=q('#taskNote');if(t)t.placeholder=window.NW_NOTEEX(q('#kind').value,'add')}
+q('#kind').addEventListener('change',mainNotePh);q('#add').addEventListener('click',mainNotePh,true);mainNotePh();
+// ---- Canlı veri katmanı (yalnızca canlı derleme): sunucudaki görev/talep/bildirimleri uygulamaya yansıtır ----
+const LV=NW.live={me:null,partner:null,pair:'solo',children:[],busy:false,again:false,names:null,last:0};
+const SV=NW.svc;
+const ERRS={stale_request:'Görev güncellendi, güncel hâlini inceleyin.',request_closed:'Bu talep artık geçerli değil.',pending_request:'Seçilen görevlerde bekleyen bir talep var.',invalid_tasks:'Bu görev artık değiştirilemez.',not_allowed:'Bu işlem için yetkiniz yok.',rate_limited:'Çok sık denediniz. Biraz sonra tekrar deneyin.',own_request:'Kendi talebinizi yanıtlayamazsınız.'};
+const errText=c=>ERRS[c]||'İşlem şu anda yapılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
+const isoOf=day=>NW.fmt.iso(new Date(BASE.y,BASE.m,BASE.d+day,12));
+const dayOf=iso=>Math.round((new Date(iso+'T12:00:00')-new Date(BASE.iso+'T12:00:00'))/86400000);
+const tmOf=t=>t?t.slice(0,2)+'.'+t.slice(3,5):'Gün içinde';
+const tmSrv=t=>String(t).replace('.',':');
+const childIdx=id=>Math.max(0,LV.children.findIndex(c=>c.id===id));
+const childId=idx=>(LV.children[idx]||LV.children[0]||{}).id;
+const PAIRTXT={paired:'Bağlantı sağlandı',invited:'Diğer ebeveyn henüz katılmadı',solo:'Diğer ebeveyn henüz davet edilmedi',self_left:'Bağlantıyı kestiniz',other_left:'Diğer ebeveyn bağlantıyı kesti'};
+function mapChanges(c){const o={};if(!c)return o;if('kind'in c)o.title=c.kind;if('task_date'in c)o.day=dayOf(c.task_date);if('task_time'in c)o.time=tmOf(c.task_time);if('child_id'in c)o.childId=childIdx(c.child_id);
+  if('extra'in c||'end_date'in c||'end_time'in c)o.extra={type:(c.extra&&c.extra.type)||'',size:(c.extra&&c.extra.size)||'',endDate:c.end_date||'',endTime:(c.end_time||'').slice(0,5)};if('note'in c)o.note=c.note||'';return o}
+function mapTask(t){const resp=t.responsible_id,mine=resp===LV.me,done=t.status==='done',ex=t.extra||{};
+  const who=mine?'Siz':!resp?(done?'Eski ebeveyn':'Henüz belli değil'):(LV.pair==='paired'?'Diğer ebeveyn':'Eski ebeveyn');
+  return {sid:t.id,rev:t.rev,seriesId:t.series_id||null,recurring:!!t.series_id,childId:childIdx(t.child_id),title:t.kind,time:tmOf(t.task_time),day:dayOf(t.task_date),who,mine,done,cancelled:t.status==='cancelled',note:t.note||'',
+    extra:{type:ex.type||'',size:ex.size||'',endDate:t.end_date||'',endTime:(t.end_time||'').slice(0,5)}}}
+function applyServer(st,tasks,reqs,nts){
+  LV.me=st.user_id;LV.partner=st.partner_id||null;LV.pair=st.pair_state||'solo';LV.children=(st.children||[]).slice().sort((a,b)=>a.position-b.position);
+  const names=LV.children.map(c=>c.name);
+  if(names.join('|')!==childNames.join('|')){childNames=names;q('#child').replaceChildren(...names.map((n,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=n;return o}))}
+  const list=tasks.map(mapTask),byId=new Map(list.map(x=>[x.sid,x]));
+  reqs.forEach(r=>{const ids=(r.request_tasks||[]).map(z=>z.task_id),ts=ids.map(i=>byId.get(i)).filter(x=>x&&!x.done&&!x.cancelled);if(!ts.length)return;
+    const out=r.requested_by===LV.me,pl=r.payload||{},ch=mapChanges(pl.changes);
+    if(r.type==='cancel'){const rq={sender:out?'me':'other',scope:ts.length>1?'future':'one',targets:ts,note:r.note||'',requestId:r.id,rev:r.rev};ts.forEach(x=>{x.cancelPending=true;x.cancelRequest=rq})}
+    else if(out){ts.forEach(x=>{const p=Object.assign({},ch,{requestId:r.id,rev:r.rev,isNew:r.type==='new',requestNote:r.note||''});if(r.type==='new'||r.type==='assign')p.who=pl.assignee==='requester'?'Siz':'Diğer ebeveyn';x.proposal=p})}
+    else{const inc={requestId:r.id,rev:r.rev,type:r.type,assignee:pl.assignee||null,changes:ch,note:r.note||'',targets:ts};ts.forEach(x=>{x.incoming=inc})}});
+  items.splice(0,items.length,...list.filter(x=>true));
+  // bildirimler
+  const kindOf=n=>(n.data&&n.data.kind)||'Görev',lbl=n=>{const d=n.data||{};return (d.kind||'Görev')+(d.first_date?' · '+new Date(d.first_date+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'long'}):'')+(d.count>1?' (+'+(d.count-1)+')':'')};
+  const when=n=>{const d=new Date(n.updated_at||n.created_at);return NW.fmt.iso(d)===BASE.iso?'Bugün':d.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})};
+  const arr=nts.map(n=>{const d=n.data||{};let title,body,target=null;
+    if(n.type==='request'){const rt=d.request_type;title=(d.kind||'Görev')+' · '+(rt==='cancel'?'İptal talebi':rt==='edit'?'Değişiklik talebi':'Görev talebi');
+      body=(n.updated?'Talep güncellendi. ':'')+(rt==='cancel'?'Diğer ebeveyn iptalini istiyor: ':rt==='edit'?'Diğer ebeveyn değişiklik istiyor: ':d.assignee==='requester'?'Diğer ebeveyn bu görevi üstlenmek istiyor: ':'Diğer ebeveyn bu görevi yapmanızı istiyor: ')+lbl(n)+'. Yanıtınız bekleniyor.';target='pending'}
+    else if(n.type==='reply'){title=d.accepted?'Talebiniz kabul edildi':'Talebiniz uygun bulunmadı';body=lbl(n)+' için talebiniz '+(d.accepted?'uygun bulundu.':'uygun bulunmadı.')}
+    else if(n.type==='done'){title='Görev tamamlandı';body='Diğer ebeveyn tamamladı: '+lbl(n)+'.'}
+    else if(n.type==='reminder'){title='Görev hatırlatması';body=lbl(n)+' '+prefs.lead+' sonra başlıyor.'}
+    else if(d.kind==='joined'){title='Bağlantı sağlandı';body='Diğer ebeveyn planınıza katıldı.'}
+    else if(d.kind==='free_task'){title='Sorumlusuz görev eklendi';body='Diğer ebeveyn ekledi: '+lbl(n)+'. Sorumlu bekliyor.';target='unassigned'}
+    else{title='Bilgi';body=lbl(n)}
+    const it=n.task_id?items.find(x=>x.sid===n.task_id):null;
+    return {id:n.id,type:n.type,title,body,when:when(n),read:!!n.read_at,key:n.request_id?'req:'+n.request_id:null,target:n.type==='request'&&n.state?null:target,item:(n.type!=='request'||n.state)&&it?it:null,state:n.state==='answered'?'Yanıtlandı':n.state==='withdrawn'?'Geri çekildi':n.state==='closed'?'Kapandı':''}});
+  notifs.splice(0,notifs.length,...arr);LV.readSent=new Set(arr.filter(n=>n.read).map(n=>n.id));
+  // eşleşme durumu
+  const ps=q('#pairState');if(ps){const t=PAIRTXT[LV.pair]||PAIRTXT.solo;if(ps.textContent!==t){ps.textContent=t;document.getElementById('no').dispatchEvent(new CustomEvent(LV.pair==='paired'?'noword-pair':'noword-unpair'))}}
+  updateBell();render();
+  if(!q('#settingsPage').hidden)refreshSettings();
+  if(!q('#detail').hidden&&current&&current.sid&&!q('#detailActions').querySelector('input,textarea,select')){const n=items.find(x=>x.sid===current.sid);if(n)openDetail(n);else{show('home');render()}}
+}
+function sync(){if(LV.busy){LV.again=true;return Promise.resolve()}LV.busy=true;
+  const from=isoOf(-90);
+  return Promise.all([SV.getState(),SV.get('/rest/v1/tasks?select=*&task_date=gte.'+from+'&order=task_date,task_time&limit=2000'),SV.get('/rest/v1/requests?select=*,request_tasks(task_id)&status=eq.pending'),SV.get('/rest/v1/notifications?select=*&order=created_at.desc&limit=100')])
+   .then(a=>{if(a[0]&&a[0].plan_id)applyServer(a[0],a[1],a[2],a[3]);LV.last=Date.now()},e=>{if(e&&e.message==='no_session'){SV.signOut().then(()=>location.reload())}}).then(()=>{LV.busy=false;if(LV.again){LV.again=false;return sync()}})}
+LV.sync=sync;
+// çocuk adları: Çocuklar ekranından dönüldüğünde sunucuyla eşitle
+function reconcileNames(names){const cur=LV.children;let p=Promise.resolve();names.forEach((n,i)=>{if(!n)return;if(cur[i]){if(cur[i].name!==n)p=p.then(()=>SV.rpc('rename_child',{p_child:cur[i].id,p_name:n}))}else p=p.then(()=>SV.rpc('add_child',{p_name:n}))});return p}
+document.getElementById('nw').addEventListener('noword-enter',e=>{const names=e.detail.names||[];const go=()=>{sync();LV.regPush&&LV.regPush()};if(!LV.timer)LV.timer=setInterval(()=>{if(!document.hidden&&!r.hidden)sync()},20000);
+  if(LV.children.length&&names.join('|')!==LV.children.map(c=>c.name).join('|'))reconcileNames(names).then(()=>sync());else go()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!r.hidden&&LV.me)sync()});
+// okundu bilgisini sunucuya ilet
+{const _ub=updateBell;updateBell=function(){_ub();if(!LV.readSent)return;const ids=notifs.filter(n=>n.read&&!LV.readSent.has(n.id)).map(n=>n.id);if(ids.length){ids.forEach(i=>LV.readSent.add(i));SV.rpc('mark_read',{p_ids:ids})}}}
+// işlem yardımcıları
+const noteOf=()=>{const ta=q('#reqNoteInput');if(!ta||!ta.value.trim())return null;const o=ta.closest('.reqNote').querySelector('[data-r=out]');return o&&o.textContent?o.textContent:null};
+function act(btn,call,after){if(btn)btn.disabled=true;return call().then(r=>{if(btn)btn.disabled=false;if(!r||!r.ok){flash(errText(r&&r.error));if(r&&(r.error==='stale_request'||r.error==='request_closed'||r.error==='invalid_tasks'||r.error==='pending_request'))sync();return null}return r},()=>{if(btn)btn.disabled=false;flash(errText());return null}).then(r=>{if(!r)return null;return sync().then(()=>{if(after)after(r);return r})})}
+const show_=(sid,msg)=>{const n=sid&&items.find(x=>x.sid===sid);if(n){openDetail(n);if(msg)q('#detailResult').textContent=msg}else{show('home');render();if(msg)flash(msg)}};
+const sids=ts=>ts.map(x=>x.sid);
+// kayıt formu
+LV.createFromForm=function(dates,f,errEl){const b=q('#save');b.disabled=true;const kal=f.kind==='Birlikte zaman';
+  const base={p_child:childId(f.child),p_kind:f.kind,p_time:f.time,p_who:f.who,p_note:f.note||null};
+  const jobs=kal?dates.map(d=>Object.assign({},base,{p_dates:[d.iso],p_end_date:d.extra.endDate||null,p_end_time:d.extra.endTime||null,p_extra:{}})):[Object.assign({},base,{p_dates:dates.map(d=>d.iso),p_end_date:null,p_end_time:null,p_extra:{type:dates[0].extra.type||'',size:dates[0].extra.size||''}})];
+  let chain=Promise.resolve({ok:true});jobs.forEach(j=>{chain=chain.then(r=>r.ok?SV.rpc('create_tasks',j):r)});
+  chain.then(r=>{b.disabled=false;if(!r.ok){errEl.textContent=errText(r.error);return}errEl.textContent='';return sync().then(()=>{formDraft=null;resetForm();show('home');render()})},()=>{b.disabled=false;errEl.textContent=errText()})};
+// tıklama yakalayıcıları: yerel mantığın yerine sunucu çağrısı
+r.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled)return;const id=b.id,it=current,take=()=>{e.preventDefault();e.stopImmediatePropagation()};
+  const scope=()=>q('#actionScope')?q('#actionScope').value:'one';
+  if(id==='doneTask'&&it){take();if(!it.done&&!completionAllowed(it))return;act(b,()=>SV.rpc(it.done?'reopen_task':'complete_task',{p_task:it.sid}),()=>show_(it.sid,it.done?'Görev yeniden açık.':'Görev tamamlandı.'))}
+  else if(id==='takeTask'&&it){take();const ts=takeTargets(it,scope());act(b,()=>SV.rpc('request_assign',{p_task_ids:sids(ts),p_to:'me',p_note:null}),()=>show_(it.sid,(ts.length>1?ts.length+' görev için talep iletildi. ':'Talep iletildi. ')+'Diğer ebeveynin yanıtı bekleniyor.'))}
+  else if((id==='sendTake'||id==='sendChange')&&it){if(noteOf()===null&&q('#reqNoteInput')&&q('#reqNoteInput').value.trim()){take();return}take();const ts=requestTargets(it,scope()),note=noteOf();act(b,()=>SV.rpc('request_assign',{p_task_ids:sids(ts),p_to:id==='sendTake'?'me':'other',p_note:note}),()=>show_(it.sid,(ts.length>1?ts.length+' görev için talep iletildi. ':'Talep iletildi. ')+'Diğer ebeveynin yanıtı bekleniyor.'))}
+  else if(id==='saveTime'&&it&&it.proposal&&it.proposal.isNew&&it.proposal.requestId){take();const day=dayOf(q('#editDay').value),time=q('#editTime').value,ch={};if(!q('#editDay').value||!time)return;const kind=q('#editKind').value,cid=Number(q('#editChild').value);
+    if(day!==it.day)ch.task_date=q('#editDay').value;if(tmOf(time)!==it.time)ch.task_time=time;if(kind!==it.title)ch.kind=kind;if(cid!==(it.childId??0))ch.child_id=childId(cid);{const nt=q('#editNeutralNote')?q('#editNeutralNote').textContent.trim():null;if(nt!==null&&nt!==(it.note||''))ch.note=nt}
+    const w=q('#editWho')?q('#editWho').value:null,asg=w&&w!==it.proposal.who?(w==='Siz'?'me':'other'):null;if(!Object.keys(ch).length&&!asg){show_(it.sid);return}
+    act(b,()=>SV.rpc('revise_request',{p_request:it.proposal.requestId,p_changes:ch,p_assignee:asg,p_note:null}),()=>show_(it.sid,'Güncel hâli diğer ebeveynin yanıtına sunuldu.'))}
+  else if(id==='saveTime'&&it){const day=dayOf(q('#editDay').value),time=q('#editTime').value,ch={};if(!q('#editDay').value||!time)return;const kind=q('#editKind').value,cid=Number(q('#editChild').value);
+    if(day!==it.day)ch.task_date=q('#editDay').value;if(tmOf(time)!==it.time)ch.task_time=time;if(kind!==it.title)ch.kind=kind;if(cid!==(it.childId??0))ch.child_id=childId(cid);{const nt=q('#editNeutralNote')?q('#editNeutralNote').textContent.trim():null;if(nt!==null&&nt!==(it.note||''))ch.note=nt}
+    if(!Object.keys(ch).length)return;const special=['Okuldan alma','Okula bırakma','Kursa bırakma','Kurstan alma','Etkinliğe götürme','Birlikte zaman'].includes(it.title);
+    const needs=(!it.mine&&it.who!=='Henüz belli değil')||'kind'in ch||'child_id'in ch||(special&&('task_date'in ch||'task_time'in ch));LV.edit={sid:it.sid,ch};
+    if(!needs){take();act(b,()=>SV.rpc('edit_tasks',{p_task_ids:[it.sid],p_changes:ch,p_note:null}),()=>show_(it.sid,'Değişiklik kaydedildi.'))}}
+  else if(id==='sendEdit'&&it&&LV.edit&&LV.edit.sid===it.sid){if(q('#reqNoteInput')&&q('#reqNoteInput').value.trim()&&noteOf()===null){take();return}take();const note=noteOf(),ch=LV.edit.ch;act(b,()=>SV.rpc('edit_tasks',{p_task_ids:[it.sid],p_changes:ch,p_note:note}),res=>show_(it.sid,res.data&&res.data.applied?'Değişiklik kaydedildi.':'Talep iletildi. Diğer ebeveynin yanıtı bekleniyor.'))}
+  else if(id==='submitCancel'&&it){const sc=q('#cancelScope')?q('#cancelScope').value:'one',ts=cancelTargets(it,sc);if(ts.some(x=>x.proposal||x.cancelPending||x.incoming)){take();q('#cancelError').textContent='Seçilen tarihlerde bekleyen bir talep var. Önce mevcut talep yanıtlanmalı veya geri çekilmelidir.';return}
+    const assigned=ts.filter(x=>x.who!=='Henüz belli değil');if(assigned.length&&q('#reqNoteInput')&&q('#reqNoteInput').value.trim()&&noteOf()===null){take();return}take();const note=assigned.length?noteOf():null;
+    act(b,()=>SV.rpc('request_cancel',{p_task_ids:sids(ts),p_note:note}),()=>{if(assigned.length)show_(it.sid);else{show('home');render()}})}
+  else if((id==='cancelYes'||id==='cancelNo')&&it&&it.cancelRequest){take();const rq=it.cancelRequest;act(b,()=>SV.rpc('answer_request',{p_request:rq.requestId,p_accept:id==='cancelYes',p_rev:rq.rev}),()=>{if(id==='cancelYes'){show('home');render()}else show_(it.sid,'Mevcut görev korundu.')})}
+  else if((id==='withdrawCancel'||id==='withdraw')&&it){const rid=(it.cancelRequest&&it.cancelRequest.requestId)||(it.proposal&&it.proposal.requestId);if(!rid)return;take();const isNew=it.proposal&&it.proposal.isNew;act(b,()=>SV.rpc('withdraw_request',{p_request:rid}),()=>{if(isNew){show('home');render();flash('Görev geri çekildi.')}else show_(it.sid,'Talep geri çekildi.')})}
+  else if((id==='reqYes'||id==='reqNo')&&it&&it.incoming){take();const inc=it.incoming;act(b,()=>SV.rpc('answer_request',{p_request:inc.requestId,p_accept:id==='reqYes',p_rev:inc.rev}),()=>{if(id==='reqYes')show_(it.sid,'Kaydedildi.');else{show('home');render();flash('Yanıtınız iletildi.')}})}
+  else if(id==='unpairYes'){take();act(b,()=>SV.rpc('unlink'),()=>{refreshSettings();flash('Bağlantı kesildi.')})}
+},true);
+// gelen talepler: ayrıntı ekranında yanıt düğmeleri
+{const _od=openDetail;openDetail=function(item){_od(item);const inc=item.incoming;if(!inc||item.cancelPending)return;
+  const msg=inc.type==='edit'?'Diğer ebeveyn değişiklik istiyor.':inc.assignee==='requester'?'Diğer ebeveyn bu görevi üstlenmek istiyor.':'Diğer ebeveyn bu görevi yapmanızı istiyor.';
+  const box=document.createElement('div');box.className='comparison';const h=document.createElement('span');h.className='muted';h.textContent='Gelen talep';const p=document.createElement('p');p.textContent=msg+(inc.targets.length>1?' · '+inc.targets.length+' görev':'');box.append(h,p);
+  if(inc.type==='edit'){const c=inc.changes,fmt={title:['Görev',v=>v],day:['Tarih',v=>new Date(BASE.y,BASE.m,BASE.d+v).toLocaleDateString('tr-TR',{day:'numeric',month:'long'})],time:['Saat',v=>v],childId:['Çocuk',v=>childNames[v]||'Çocuk']};Object.keys(fmt).filter(k=>k in c).forEach(k=>{const row=document.createElement('p');row.textContent=fmt[k][0]+': '+fmt[k][1](k==='childId'?(item.childId??0):item[k])+' → '+fmt[k][1](c[k]);box.append(row)})}
+  if(inc.note){const n=document.createElement('p');n.className='reqNoteView';n.textContent='Değişiklik notu: '+inc.note;box.append(n)}
+  const row=document.createElement('div');row.className='row';[['reqNo','Uygun değil'],['reqYes','Uygun']].forEach(([i,t])=>{const bt=document.createElement('button');bt.type='button';bt.id=i;bt.textContent=t;if(i==='reqYes')bt.className='main';row.append(bt)});
+  q('#detailActions').replaceChildren(box,row)}}
+
+// ---- Telefon bildirimleri (FCM): yalnızca Android uygulamasında ----
+(()=>{const C=window.Capacitor,P=C&&C.Plugins&&C.Plugins.PushNotifications;if(!P||(C.getPlatform&&C.getPlatform()!=='android'))return;let done=false;
+  LV.regPush=()=>{if(done)return;done=true;try{P.addListener('registration',t=>{if(t&&t.value)SV.rpc('register_device',{p_token:t.value,p_platform:'android'})});P.addListener('registrationError',()=>{done=false});
+    P.addListener('pushNotificationActionPerformed',()=>{try{document.getElementById('bellBtn')&&document.getElementById('bellBtn').click()}catch(e){}});
+    P.checkPermissions().then(p=>p.receive==='granted'?p:P.requestPermissions()).then(p=>{if(p.receive==='granted')P.register();else done=false}).catch(()=>{done=false})}catch(e){done=false}}})();
+
+function clockTick(){rollover();if(!q('#home').hidden)render();if(!q('#detail').hidden&&current&&!current.done){const b=q('#doneTask');if(b&&b.disabled&&completionAllowed(current)){b.disabled=false;const h=q('#doneHint');if(h)h.remove()}}}
+setInterval(clockTick,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)clockTick()});
+render();window.__nwBoot=(window.__nwBoot|0)|2})();
+</script></div>
+
+
+<script>
+(()=>{let toastShown=false,toastTimer=null;const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.hidden=true},3500)};document.getElementById('nw').addEventListener('noword-enter',e=>{if(e.detail.invited&&!toastShown){toastShown=true;toast('Davet gönderildi. Diğer ebeveynin katılması bekleniyor.')}document.getElementById('no').hidden=true;const r=document.getElementById('nw');r.hidden=false;const names=e.detail.names;r.querySelector('#pairState')?.remove();const state=document.createElement('p');state.id='pairState';state.className='note';state.textContent=e.detail.paired?'Bağlantı sağlandı':e.detail.invited?'Diğer ebeveyn henüz katılmadı':'Diğer ebeveyn henüz davet edilmedi';r.querySelector('#home').prepend(state);});document.getElementById('childrenSettings').onclick=()=>{document.getElementById('nw').hidden=true;document.getElementById('no').hidden=false;const btn=document.querySelector('#no #settings');if(btn)btn.click()};})();
+</script>
+<script>/* Play uygulama içi güncelleme: normalde esnek (arka planda iner, kullanıcı onaylar), minimum sürüm altındaysa zorunlu. Yalnızca Play'den kurulu Android uygulamasında çalışır. */
+(function(){var C=window.Capacitor,P=C&&C.Plugins&&C.Plugins.AppUpdate;if(!P||!(C.getPlatform&&C.getPlatform()==='android'))return;
+var last=0,listening=false;
+function ready(){if(document.getElementById('nwUpd'))return;var b=document.createElement('div');b.id='nwUpd';b.setAttribute('role','status');
+  b.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(14px + var(--safe-area-inset-bottom,0px));z-index:99999;max-width:456px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#0d3b38;color:#fff;font:600 15px/1.3 system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.28)';
+  var s=document.createElement('span');s.style.flex='1';s.textContent='Yeni sürüm hazır';var y=document.createElement('button');y.type='button';y.textContent='Yeniden başlat';
+  y.style.cssText='min-height:44px;padding:8px 14px;border:0;border-radius:12px;background:#f2a03d;color:#1a1200;font:700 15px system-ui,sans-serif';
+  y.onclick=function(){P.completeFlexibleUpdate().catch(function(){})};var x=document.createElement('button');x.type='button';x.textContent='Sonra';x.setAttribute('aria-label','Sonra');
+  x.style.cssText='min-height:44px;padding:8px 10px;border:0;background:transparent;color:#cfe3e0;font:600 14px system-ui,sans-serif';x.onclick=function(){b.remove()};b.append(s,y,x);document.body.appendChild(b)}
+function check(forced){last=Date.now();P.getAppUpdateInfo().then(function(i){if(i.updateAvailability!==2)return;
+  if(forced&&i.immediateUpdateAllowed)return P.performImmediateUpdate();
+  if(i.flexibleUpdateAllowed){if(!listening){listening=true;P.addListener('onFlexibleUpdateStateChange',function(e){if(e&&e.installStatus===11)ready()})}return P.startFlexibleUpdate()}
+  if(i.immediateUpdateAllowed&&forced)return P.performImmediateUpdate()}).catch(function(){})}
+window.NW=window.NW||{};NW.onForce=function(){check(true)};
+setTimeout(function(){check(false)},4000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-last>6*3600*1000)check(false)});
+})();
+</script>
+<script>(function(){var C=window.Capacitor;if(C&&C.Plugins&&C.Plugins.App){C.Plugins.App.addListener('backButton',function(){if(!(window.NW&&NW.handleBack&&NW.handleBack()))C.Plugins.App.exitApp()})}})();</script>
+</body>
+</html>
