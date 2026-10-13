@@ -852,6 +852,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
 
   function el(t, css, txt) { var n = document.createElement(t); if (css) n.style.cssText = css; if (txt) n.textContent = txt; return n }
   var card = null;
+  function toast(m) { var t = el('div', 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:99999;padding:10px 14px;border-radius:12px;background:#10211f;color:#fff;font:14px system-ui,sans-serif', m); document.body.append(t); setTimeout(function () { t.remove() }, 3000) }
   function btn(txt, main, fn) { var b = el('button', 'min-height:44px;padding:8px 14px;border-radius:12px;font:700 15px system-ui,sans-serif;cursor:pointer;border:' + (main ? '0' : '1px solid rgba(255,255,255,.35)') + ';background:' + (main ? '#f2a03d' : 'transparent') + ';color:' + (main ? '#1a1200' : '#e8f4f2'), txt); b.type = 'button'; b.onclick = fn; return b }
   function open(title, lines, actions, key) {
     hide(); card = el('div', 'position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99998;max-width:456px;margin:0 auto;padding:16px;border-radius:16px;background:#0d3b38;color:#e8f4f2;font:15px/1.45 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.35)');
@@ -867,8 +868,10 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   function show() {
     if (standalone || ls.get('nwInstallDone') || snoozed('nwInstallSnooze', 3)) return;
     if (ios) {
-      if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'ye yapıştırabilirsiniz.'], [], 'nwInstallSnooze');
-      return open('Ana ekrana ekleyin', ['1. Alttaki Paylaş simgesine dokunun.', '2. "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. Bildirimler ancak böyle çalışır.'], [], 'nwInstallSnooze');
+      var copy = btn('Adresi kopyala', true, function () { var u = location.href.split('#')[0]; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast('Adres kopyalandı. Safari\'de yapıştırın.') }).catch(function () { toast('Adresi elle kopyalayın.') }) });
+      if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'nin adres çubuğuna yapıştırın.'], [copy], 'nwInstallSnooze');
+      var sh = btn('Paylaş menüsünü aç', true, function () { if (navigator.share) navigator.share({ title: 'NoWord', url: location.href.split('#')[0] }).catch(function () {}); else toast('Alttaki Paylaş simgesine dokunun.') });
+      return open('Ana ekrana ekleyin', ['1. "Paylaş menüsünü aç"a dokunun.', '2. Açılan menüde aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. Bildirimler ancak böyle çalışır.'], [sh], 'nwInstallSnooze');
     }
     if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', '1') }).catch(function () {}) })], 'nwInstallSnooze');
     if (android) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
