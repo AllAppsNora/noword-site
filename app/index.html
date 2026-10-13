@@ -633,7 +633,7 @@ q('#bellBtn').onclick=openNotifs;q('#nBack').onclick=()=>{show('home');render()}
 // Ayarlar
 function pairText(){return(q('#pairState')?.textContent)||'Diğer ebeveyn henüz katılmadı'}
 function isPaired(){return pairText()==='Bağlantı sağlandı'}
-function refreshSettings(){q('#setEmail').textContent=userEmail||'—';q('#pfDone').checked=!!prefs.done;q('#pfInfo').checked=!!prefs.info;q('#pfRem').checked=!!prefs.reminder;q('#pfLead').value=prefs.lead;q('#appVer').textContent=NW.version+(NW.svc.provider==='live'?'':NW.svc.provider==='test'?' · test':' · önizleme');const sm=NW.config.supportEmail;q('#supportRow').hidden=!sm;q('#supportMail').textContent=sm||'';q('#setPair').textContent=(t=>{const m=t.replace(/^Diğer ebeveyn /,'');return m===t?t:NW.fmt.upperFirst(m)})(pairText());q('#reinviteBtn').textContent=/kes/.test(pairText())?'Yeni davet gönder':/katılmadı|^Davet gönderildi/.test(pairText())?'Daveti yeniden gönder':'Diğer ebeveyni davet et';q('#unpairBtn').hidden=!isPaired();q('#reinviteBtn').hidden=isPaired();q('#unpairConfirm').hidden=true;q('#deleteConfirm').hidden=true;q('#pfLeadRow').hidden=!prefs.reminder}
+function refreshSettings(){q('#setEmail').textContent=userEmail||(()=>{try{const x=NW.svc.session&&NW.svc.session();return x&&x.email||''}catch(e){return''}})()||'—';q('#pfDone').checked=!!prefs.done;q('#pfInfo').checked=!!prefs.info;q('#pfRem').checked=!!prefs.reminder;q('#pfLead').value=prefs.lead;q('#appVer').textContent=NW.version+(NW.svc.provider==='live'?'':NW.svc.provider==='test'?' · test':' · önizleme');const sm=NW.config.supportEmail;q('#supportRow').hidden=!sm;q('#supportMail').textContent=sm||'';q('#setPair').textContent=(t=>{const m=t.replace(/^Diğer ebeveyn /,'');return m===t?t:NW.fmt.upperFirst(m)})(pairText());q('#reinviteBtn').textContent=/kes/.test(pairText())?'Yeni davet gönder':/katılmadı|^Davet gönderildi/.test(pairText())?'Daveti yeniden gönder':'Diğer ebeveyni davet et';q('#unpairBtn').hidden=!isPaired();q('#reinviteBtn').hidden=isPaired();q('#unpairConfirm').hidden=true;q('#deleteConfirm').hidden=true;q('#pfLeadRow').hidden=!prefs.reminder}
 q('#settingsBtn').onclick=()=>{refreshSettings();show('settingsPage')};q('#sBack').onclick=()=>{show('home');render()};
 q('#pfDone').onchange=e=>{prefs.done=e.target.checked;savePrefs()};q('#pfInfo').onchange=e=>{prefs.info=e.target.checked;savePrefs()};q('#pfRem').onchange=e=>{prefs.reminder=e.target.checked;q('#pfLeadRow').hidden=!prefs.reminder;savePrefs()};q('#pfLead').onchange=e=>{prefs.lead=e.target.value;savePrefs()};
 q('#logout').onclick=()=>{NW.svc.signOut().then(()=>location.reload())};
@@ -838,5 +838,64 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
 })();
 </script>
 <script>(function(){var C=window.Capacitor;if(C&&C.Plugins&&C.Plugins.App){C.Plugins.App.addListener('backButton',function(){if(!(window.NW&&NW.handleBack&&NW.handleBack()))C.Plugins.App.exitApp()})}})();</script>
-</body>
+<script>/* NoWord PWA eki: kurulum yönlendirmesi + web bildirimi aboneliği. Yalnızca tarayıcı sürümünde (app/index.html) bulunur. */
+(function () {
+  var ls = { get: function (k) { try { return localStorage.getItem(k) } catch (e) { return null } }, set: function (k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
+  var ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var android = /Android/.test(ua), standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua);
+  if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}) });
+
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; show() });
+  window.addEventListener('appinstalled', function () { hide(); ls.set('nwInstallDone', '1') });
+
+  function el(t, css, txt) { var n = document.createElement(t); if (css) n.style.cssText = css; if (txt) n.textContent = txt; return n }
+  var card = null;
+  function btn(txt, main, fn) { var b = el('button', 'min-height:44px;padding:8px 14px;border-radius:12px;font:700 15px system-ui,sans-serif;cursor:pointer;border:' + (main ? '0' : '1px solid rgba(255,255,255,.35)') + ';background:' + (main ? '#f2a03d' : 'transparent') + ';color:' + (main ? '#1a1200' : '#e8f4f2'), txt); b.type = 'button'; b.onclick = fn; return b }
+  function open(title, lines, actions, key) {
+    hide(); card = el('div', 'position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99998;max-width:456px;margin:0 auto;padding:16px;border-radius:16px;background:#0d3b38;color:#e8f4f2;font:15px/1.45 system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.35)');
+    card.setAttribute('role', 'dialog'); card.setAttribute('aria-label', title);
+    card.append(el('div', 'font-weight:700;font-size:16px;margin-bottom:6px', title));
+    lines.forEach(function (l) { card.append(el('div', 'margin:3px 0', l)) });
+    var row = el('div', 'display:flex;gap:10px;flex-wrap:wrap;margin-top:12px'); actions.forEach(function (a) { row.append(a) });
+    row.append(btn('Sonra', false, function () { ls.set(key, String(Date.now())); hide() })); card.append(row); document.body.append(card);
+  }
+  function hide() { if (card) { card.remove(); card = null } }
+  function snoozed(key, days) { var t = +ls.get(key) || 0; return Date.now() - t < days * 864e5 }
+
+  function show() {
+    if (standalone || ls.get('nwInstallDone') || snoozed('nwInstallSnooze', 3)) return;
+    if (ios) {
+      if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'ye yapıştırabilirsiniz.'], [], 'nwInstallSnooze');
+      return open('Ana ekrana ekleyin', ['1. Alttaki Paylaş simgesine dokunun.', '2. "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. Bildirimler ancak böyle çalışır.'], [], 'nwInstallSnooze');
+    }
+    if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', '1') }).catch(function () {}) })], 'nwInstallSnooze');
+    if (android) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
+  }
+  window.addEventListener('load', function () { setTimeout(show, 2500) });
+
+  /* ---- Web bildirimi ---- */
+  var supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && (!ios || standalone);
+  function b64u(s) { var p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')), o = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) o[i] = r.charCodeAt(i); return o }
+  function subscribe() {
+    return navigator.serviceWorker.ready.then(function (reg) {
+      return reg.pushManager.getSubscription().then(function (sub) {
+        if (sub) return sub;
+        return NW.svc.rpc('get_push_key').then(function (k) { if (!k.ok || !k.data) throw new Error('key'); return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(k.data) }) });
+      });
+    }).then(function (sub) { return NW.svc.rpc('register_device', { p_token: sub.endpoint, p_platform: 'web' }) });
+  }
+  function askCard() {
+    open('Bildirimleri açın', ['Yanıt bekleyen bir talep olduğunda telefonunuza nötr bir bildirim gelir. Not içeriği bildirimde görünmez.'],
+      [btn('Bildirimleri aç', true, function () { hide(); Notification.requestPermission().then(function (p) { if (p === 'granted') subscribe().catch(function () {}); else ls.set('nwPushSnooze', String(Date.now())) }) })], 'nwPushSnooze');
+  }
+  function pushInit() {
+    if (!supported) return;
+    if (Notification.permission === 'granted') return void subscribe().catch(function () {});
+    if (Notification.permission === 'default' && !snoozed('nwPushSnooze', 3)) setTimeout(function () { if (!card) askCard() }, 3000);
+  }
+  document.addEventListener('DOMContentLoaded', function () { var nw = document.getElementById('nw'); if (nw) nw.addEventListener('noword-enter', pushInit) });
+})();
+</script></body>
 </html>
