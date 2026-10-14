@@ -881,10 +881,11 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
     if (android) {
       /* Chrome yükleme olayını yalnızca uygulama yüklü DEĞİLSE gönderir; kısa süre bekleyip olay gelmediyse yüklü sayılır. */
       if (!waited) { waited = true; setTimeout(show, 2500); return }
-      var chk = navigator.getInstalledRelatedApps ? navigator.getInstalledRelatedApps().then(function (a) { return a && a.length > 0 }).catch(function () { return false }) : Promise.resolve(false);
+      /* Chrome kaldırma sonrası yükleme olayını bir süre göndermeyebilir. Soru API'si varsa onun yanıtı esastır (boş = yüklü değil, eski 'yüklü' kaydı silinir); yoksa kayıt kullanılır. */
+      var chk = navigator.getInstalledRelatedApps ? navigator.getInstalledRelatedApps().then(function (a) { var ok = !!(a && a.length > 0); if (!ok) ls.set('nwInstalled', ''); return ok }).catch(function () { return ls.get('nwInstalled') === '1' }) : Promise.resolve(ls.get('nwInstalled') === '1');
       chk.then(function (rel) {
         if (card || deferred) return;
-        if (rel || ls.get('nwInstalled') === '1') { if (!snoozed('nwOpenSnooze', 3)) open('NoWord uygulaması yüklü', ['Ana ekrandaki NoWord simgesinden açın. Daha hızlı açılır, bildirimler de ancak böyle çalışır.'], [], 'nwOpenSnooze') }
+        if (rel) { if (!snoozed('nwOpenSnooze', 3)) open('NoWord uygulaması yüklü', ['Ana ekrandaki NoWord simgesinden açın. Daha hızlı açılır, bildirimler de ancak böyle çalışır.'], [], 'nwOpenSnooze') }
         else if (!snoozed('nwInstallSnooze', 3)) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
       });
     }
