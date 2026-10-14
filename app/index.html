@@ -848,10 +848,11 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   var iosSafari = ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua);
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}) });
 
+  if (standalone) ls.set('nwInstalled', '1');
   var deferred = null;
   var entered = false;
-  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; if (entered) show() });
-  window.addEventListener('appinstalled', function () { hide(); ls.set('nwInstallDone', String(Date.now())) });
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; ls.set('nwInstalled', ''); if (entered) { hide(); show() } });
+  window.addEventListener('appinstalled', function () { hide(); ls.set('nwInstalled', '1') });
 
   function el(t, css, txt) { var n = document.createElement(t); if (css) n.style.cssText = css; if (txt) n.textContent = txt; return n }
   var card = null;
@@ -868,15 +869,25 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   function hide() { if (card) { card.remove(); card = null } }
   function snoozed(key, days) { var t = +ls.get(key) || 0; return Date.now() - t < days * 864e5 }
 
+  var waited = false;
   function show() {
-    if (!entered || card || standalone || snoozed('nwInstallDone', 1) || snoozed('nwInstallSnooze', 3)) return;
+    if (!entered || card || standalone || snoozed('nwInstallSnooze', 3)) return;
     if (ios) {
       var copy = btn('Adresi kopyala', true, function () { var u = location.href.split('#')[0]; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast('Adres kopyalandı. Safari\'de yapıştırın.') }).catch(function () { toast('Adresi elle kopyalayın.') }) });
       if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'nin adres çubuğuna yapıştırın.'], [copy], 'nwInstallSnooze');
       return open('Ana ekrana ekleyin', ['1. Safari\'nin altındaki araç çubuğunda Paylaş simgesine (kare ve yukarı ok) dokunun.', '2. Açılan listeyi aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. İlk açılışta bir kez tekrar giriş gerekir. Bildirimler ancak böyle çalışır.'], [], 'nwInstallSnooze');
     }
-    if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', String(Date.now())) }).catch(function () {}) })], 'nwInstallSnooze');
-    if (android) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
+    if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstalled', '1') }).catch(function () {}) })], 'nwInstallSnooze');
+    if (android) {
+      /* Chrome yükleme olayını yalnızca uygulama yüklü DEĞİLSE gönderir; kısa süre bekleyip olay gelmediyse yüklü sayılır. */
+      if (!waited) { waited = true; setTimeout(show, 2500); return }
+      var chk = navigator.getInstalledRelatedApps ? navigator.getInstalledRelatedApps().then(function (a) { return a && a.length > 0 }).catch(function () { return false }) : Promise.resolve(false);
+      chk.then(function (rel) {
+        if (card || deferred) return;
+        if (rel || ls.get('nwInstalled') === '1') { if (!snoozed('nwOpenSnooze', 3)) open('NoWord uygulaması yüklü', ['Ana ekrandaki NoWord simgesinden açın. Daha hızlı açılır, bildirimler de ancak böyle çalışır.'], [], 'nwOpenSnooze') }
+        else if (!snoozed('nwInstallSnooze', 3)) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
+      });
+    }
   }
 
   /* ---- Web bildirimi ---- */

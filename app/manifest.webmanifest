@@ -6,6 +6,12 @@
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
+ "related_applications": [
+  {
+   "platform": "webapp",
+   "url": "https://allappsnora.github.io/noword-site/app/manifest.webmanifest"
+  }
+ ],
  "background_color": "#f4f7f6",
  "theme_color": "#0d3b38",
  "icons": [
