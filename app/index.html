@@ -291,6 +291,8 @@ body{-webkit-tap-highlight-color:transparent;overflow-wrap:break-word}
 :is(#no,#nw) .noteHeader .outline{width:auto;min-height:40px;padding:6px 12px;font-size:14px;box-shadow:none}
 :is(#no,#nw) #homeInvite{margin:-6px 0 8px;padding-left:0}
 
+#taskNeutralNote,#editNeutralNote,#detailNote,#detailNoteLine,.reqNoteView{white-space:pre-line}
+
 </style>
 </head>
 <body>
@@ -300,7 +302,7 @@ body{-webkit-tap-highlight-color:transparent;overflow-wrap:break-word}
    Uygulama kodu buradaki NW nesnesi dışında tarayıcıya özgü API'ye (Intl, depolama) dayanmaz. */
 (function(){
 'use strict';
-var NW=window.NW={version:'1.0.0',build:'20261013',schema:1,env:'release',errors:[],
+var NW=window.NW={version:'1.0.0',build:'20261014',schema:1,env:'release',errors:[],
   config:{minClient:'1.0.0',supportEmail:'all.apps.nora@gmail.com'}};
 
 /* ---- Eski WebView için küçük eklentiler ---- */
@@ -691,7 +693,7 @@ new MutationObserver(syncInviteBtn).observe(q('#home'),{childList:true,subtree:t
 const NOTEEX={
  'Okuldan alma':{add:'Örn. Çocuk öğretmenden teslim alınacak, mavi çantası yanında.',req:'Örn. Toplantım uzayacak, bu sefer alabilir misin?',cancel:'Örn. Çocuk bugün serviste gelecek, almaya gerek yok.'},
  'Okula bırakma':{add:'Örn. Spor çantası da yanında olsun.',req:'Örn. Yarın erken toplantım var, bırakabilir misin?',cancel:'Örn. Okul bugün tatil, bırakmaya gerek kalmadı.'},
- 'Birlikte zaman':{add:'Örn. Hafta sonu bende kalacak, pazar akşamı teslim.',req:'Örn. Hafta sonu planım değişti, günleri değiştirebilir miyiz?',cancel:'Örn. Plan değişti, bu gece kalma olmayacak.'},
+ 'Birlikte zaman':{add:'Örn. Hafta sonu bende kalacak, pazar akşamı teslim.',req:'Örn. Hafta sonu planım değişti, günleri değiştirebilir misin?',cancel:'Örn. Plan değişti, bu gece kalma olmayacak.'},
  'Alışveriş':{add:'Örn. 31 numara, siyah okul ayakkabısı.',req:'Örn. Bu hafta ben bakamayacağım, alabilir misin?',cancel:'Örn. Ayakkabı alındı, artık gerek yok.'},
  'Kıyafet ihtiyacı':{add:'Örn. Yağmurluk ve yedek çorap lazım.',req:'Örn. Bu hafta ben bakamayacağım, alabilir misin?',cancel:'Örn. Kıyafet başka yerden sağlandı, gerek kalmadı.'},
  'Okul için hazırlık':{add:'Örn. Resim dersi için önlük ve boya takımı.',req:'Örn. Bu hafta yetişemeyeceğim, hazırlayabilir misin?',cancel:'Örn. Etkinlik iptal oldu, hazırlık gerekmiyor.'}};
