@@ -851,7 +851,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   var deferred = null;
   var entered = false;
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; if (entered) show() });
-  window.addEventListener('appinstalled', function () { hide(); ls.set('nwInstallDone', '1') });
+  window.addEventListener('appinstalled', function () { hide(); ls.set('nwInstallDone', String(Date.now())) });
 
   function el(t, css, txt) { var n = document.createElement(t); if (css) n.style.cssText = css; if (txt) n.textContent = txt; return n }
   var card = null;
@@ -869,13 +869,13 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
   function snoozed(key, days) { var t = +ls.get(key) || 0; return Date.now() - t < days * 864e5 }
 
   function show() {
-    if (!entered || card || standalone || ls.get('nwInstallDone') || snoozed('nwInstallSnooze', 3)) return;
+    if (!entered || card || standalone || snoozed('nwInstallDone', 1) || snoozed('nwInstallSnooze', 3)) return;
     if (ios) {
       var copy = btn('Adresi kopyala', true, function () { var u = location.href.split('#')[0]; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast('Adres kopyalandı. Safari\'de yapıştırın.') }).catch(function () { toast('Adresi elle kopyalayın.') }) });
       if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'nin adres çubuğuna yapıştırın.'], [copy], 'nwInstallSnooze');
       return open('Ana ekrana ekleyin', ['1. Safari\'nin altındaki araç çubuğunda Paylaş simgesine (kare ve yukarı ok) dokunun.', '2. Açılan listeyi aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. İlk açılışta bir kez tekrar giriş gerekir. Bildirimler ancak böyle çalışır.'], [], 'nwInstallSnooze');
     }
-    if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', '1') }).catch(function () {}) })], 'nwInstallSnooze');
+    if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', String(Date.now())) }).catch(function () {}) })], 'nwInstallSnooze');
     if (android) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
   }
 
