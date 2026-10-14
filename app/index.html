@@ -873,8 +873,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Dat
     if (ios) {
       var copy = btn('Adresi kopyala', true, function () { var u = location.href.split('#')[0]; (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast('Adres kopyalandı. Safari\'de yapıştırın.') }).catch(function () { toast('Adresi elle kopyalayın.') }) });
       if (!iosSafari) return open('Safari ile açın', ['iPhone\'da uygulamayı eklemek için bu sayfayı Safari\'de açın.', 'Adresi kopyalayıp Safari\'nin adres çubuğuna yapıştırın.'], [copy], 'nwInstallSnooze');
-      var sh = btn('Paylaş menüsünü aç', true, function () { if (navigator.share) navigator.share({ title: 'NoWord', url: location.href.split('#')[0] }).catch(function () {}); else toast('Alttaki Paylaş simgesine dokunun.') });
-      return open('Ana ekrana ekleyin', ['1. "Paylaş menüsünü aç"a dokunun.', '2. Açılan menüde aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. İlk açılışta bir kez tekrar giriş gerekir. Bildirimler ancak böyle çalışır.'], [sh], 'nwInstallSnooze');
+      return open('Ana ekrana ekleyin', ['1. Safari\'nin altındaki araç çubuğunda Paylaş simgesine (kare ve yukarı ok) dokunun.', '2. Açılan listeyi aşağı kaydırıp "Ana Ekrana Ekle"yi seçin.', '3. NoWord\'ü ana ekrandaki simgeden açın. İlk açılışta bir kez tekrar giriş gerekir. Bildirimler ancak böyle çalışır.'], [], 'nwInstallSnooze');
     }
     if (deferred) return open('Uygulamayı yükleyin', ['NoWord\'ü telefonunuza uygulama olarak ekleyin.'], [btn('Yükle', true, function () { var d = deferred; deferred = null; hide(); d.prompt(); d.userChoice.then(function (c) { if (c && c.outcome === 'accepted') ls.set('nwInstallDone', '1') }).catch(function () {}) })], 'nwInstallSnooze');
     if (android) open('Uygulamayı yükleyin', ['Chrome menüsünden (⋮) "Uygulamayı yükle" ya da "Ana ekrana ekle"yi seçin.'], [], 'nwInstallSnooze');
